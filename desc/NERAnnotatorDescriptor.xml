@@ -30,7 +30,7 @@
           <supertypeName>uima.tcas.Annotation</supertypeName>
           <features>
             <featureDescription>
-              <name>percent</name>
+              <name>location</name>
               <description/>
               <rangeTypeName>uima.cas.String</rangeTypeName>
             </featureDescription>
@@ -102,6 +102,16 @@
     </operationalProperties>
   </analysisEngineMetaData>
   <externalResourceDependencies>
+    <externalResourceDependency>
+      <key>EnglishSentenceModel</key>
+      <description/>
+      <optional>false</optional>
+    </externalResourceDependency>
+    <externalResourceDependency>
+      <key>EnglishTokeniserModel</key>
+      <description/>
+      <optional>false</optional>
+    </externalResourceDependency>
     <externalResourceDependency>
       <key>EnglishDateModel</key>
       <description/>
@@ -177,6 +187,20 @@
           <fileUrl>file:nertime.bin</fileUrl>
         </fileResourceSpecifier>
       </externalResource>
+      <externalResource>
+        <name>EnglishTokeniserModel</name>
+        <description/>
+        <fileResourceSpecifier>
+          <fileUrl>file:entoken.bin</fileUrl>
+        </fileResourceSpecifier>
+      </externalResource>
+      <externalResource>
+        <name>EnglishSentenceModel</name>
+        <description/>
+        <fileResourceSpecifier>
+          <fileUrl>file:ensent.bin</fileUrl>
+        </fileResourceSpecifier>
+      </externalResource>
     </externalResources>
     <externalResourceBindings>
       <externalResourceBinding>
@@ -192,16 +216,24 @@
         <resourceName>EnglishNEROrganisationModel</resourceName>
       </externalResourceBinding>
       <externalResourceBinding>
-        <key>EnglishPercentageModel</key>
-        <resourceName>EnglishNERPercentageModel</resourceName>
-      </externalResourceBinding>
-      <externalResourceBinding>
         <key>EnglishPersonModel</key>
         <resourceName>EnglishNERPersonModel</resourceName>
       </externalResourceBinding>
       <externalResourceBinding>
         <key>EnglishTimeModel</key>
         <resourceName>EnglishNERTimeModel</resourceName>
+      </externalResourceBinding>
+      <externalResourceBinding>
+        <key>EnglishSentenceModel</key>
+        <resourceName>EnglishSentenceModel</resourceName>
+      </externalResourceBinding>
+      <externalResourceBinding>
+        <key>EnglishTokeniserModel</key>
+        <resourceName>EnglishTokeniserModel</resourceName>
+      </externalResourceBinding>
+      <externalResourceBinding>
+        <key>EnglishPercentageModel</key>
+        <resourceName>EnglishNERPercentageModel</resourceName>
       </externalResourceBinding>
     </externalResourceBindings>
   </resourceManagerConfiguration>

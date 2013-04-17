@@ -11,8 +11,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Tue Apr 16 16:21:04 BST 2013
- * XML source: /Users/jp242/Documents/workspace/SemanticSearchAnalysisEngine/desc/NERAnnotatorDescriptor.xml
+ * Updated by JCasGen Wed Apr 17 21:01:16 BST 2013
+ * XML source: /Users/jackpay/Documents/workspace/SemanticSearchAnalysisEngine/desc/NERAnnotatorDescriptor.xml
  * @generated */
 public class LocationAnnotation extends Annotation {
   /** @generated
@@ -63,21 +63,21 @@ public class LocationAnnotation extends Annotation {
  
     
   //*--------------*
-  //* Feature: percent
+  //* Feature: location
 
-  /** getter for percent - gets 
+  /** getter for location - gets 
    * @generated */
-  public String getPercent() {
-    if (LocationAnnotation_Type.featOkTst && ((LocationAnnotation_Type)jcasType).casFeat_percent == null)
-      jcasType.jcas.throwFeatMissing("percent", "ac.uk.susx.tag.ner.LocationAnnotation");
-    return jcasType.ll_cas.ll_getStringValue(addr, ((LocationAnnotation_Type)jcasType).casFeatCode_percent);}
+  public String getLocation() {
+    if (LocationAnnotation_Type.featOkTst && ((LocationAnnotation_Type)jcasType).casFeat_location == null)
+      jcasType.jcas.throwFeatMissing("location", "ac.uk.susx.tag.ner.LocationAnnotation");
+    return jcasType.ll_cas.ll_getStringValue(addr, ((LocationAnnotation_Type)jcasType).casFeatCode_location);}
     
-  /** setter for percent - sets  
+  /** setter for location - sets  
    * @generated */
-  public void setPercent(String v) {
-    if (LocationAnnotation_Type.featOkTst && ((LocationAnnotation_Type)jcasType).casFeat_percent == null)
-      jcasType.jcas.throwFeatMissing("percent", "ac.uk.susx.tag.ner.LocationAnnotation");
-    jcasType.ll_cas.ll_setStringValue(addr, ((LocationAnnotation_Type)jcasType).casFeatCode_percent, v);}    
+  public void setLocation(String v) {
+    if (LocationAnnotation_Type.featOkTst && ((LocationAnnotation_Type)jcasType).casFeat_location == null)
+      jcasType.jcas.throwFeatMissing("location", "ac.uk.susx.tag.ner.LocationAnnotation");
+    jcasType.ll_cas.ll_setStringValue(addr, ((LocationAnnotation_Type)jcasType).casFeatCode_location, v);}    
   }
 
     

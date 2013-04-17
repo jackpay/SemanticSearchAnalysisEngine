@@ -11,8 +11,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Tue Apr 16 16:21:04 BST 2013
- * XML source: /Users/jp242/Documents/workspace/SemanticSearchAnalysisEngine/desc/NERAnnotatorDescriptor.xml
+ * Updated by JCasGen Wed Apr 17 21:01:16 BST 2013
+ * XML source: /Users/jackpay/Documents/workspace/SemanticSearchAnalysisEngine/desc/NERAnnotatorDescriptor.xml
  * @generated */
 public class PercentAnnotation extends Annotation {
   /** @generated

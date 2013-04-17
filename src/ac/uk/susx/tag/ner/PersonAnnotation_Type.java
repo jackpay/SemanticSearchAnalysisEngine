@@ -14,7 +14,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** An annotator which perfoms person entity recognition
- * Updated by JCasGen Tue Apr 16 16:21:04 BST 2013
+ * Updated by JCasGen Wed Apr 17 21:01:16 BST 2013
  * @generated */
 public class PersonAnnotation_Type extends Annotation_Type {
   /** @generated */

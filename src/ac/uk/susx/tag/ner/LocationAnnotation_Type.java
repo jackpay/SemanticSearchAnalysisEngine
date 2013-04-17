@@ -14,7 +14,7 @@ import org.apache.uima.cas.Feature;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** 
- * Updated by JCasGen Tue Apr 16 16:21:04 BST 2013
+ * Updated by JCasGen Wed Apr 17 21:01:16 BST 2013
  * @generated */
 public class LocationAnnotation_Type extends Annotation_Type {
   /** @generated */
@@ -45,20 +45,20 @@ public class LocationAnnotation_Type extends Annotation_Type {
   public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ac.uk.susx.tag.ner.LocationAnnotation");
  
   /** @generated */
-  final Feature casFeat_percent;
+  final Feature casFeat_location;
   /** @generated */
-  final int     casFeatCode_percent;
+  final int     casFeatCode_location;
   /** @generated */ 
-  public String getPercent(int addr) {
-        if (featOkTst && casFeat_percent == null)
-      jcas.throwFeatMissing("percent", "ac.uk.susx.tag.ner.LocationAnnotation");
-    return ll_cas.ll_getStringValue(addr, casFeatCode_percent);
+  public String getLocation(int addr) {
+        if (featOkTst && casFeat_location == null)
+      jcas.throwFeatMissing("location", "ac.uk.susx.tag.ner.LocationAnnotation");
+    return ll_cas.ll_getStringValue(addr, casFeatCode_location);
   }
   /** @generated */    
-  public void setPercent(int addr, String v) {
-        if (featOkTst && casFeat_percent == null)
-      jcas.throwFeatMissing("percent", "ac.uk.susx.tag.ner.LocationAnnotation");
-    ll_cas.ll_setStringValue(addr, casFeatCode_percent, v);}
+  public void setLocation(int addr, String v) {
+        if (featOkTst && casFeat_location == null)
+      jcas.throwFeatMissing("location", "ac.uk.susx.tag.ner.LocationAnnotation");
+    ll_cas.ll_setStringValue(addr, casFeatCode_location, v);}
     
   
 
@@ -71,8 +71,8 @@ public class LocationAnnotation_Type extends Annotation_Type {
     casImpl.getFSClassRegistry().addGeneratorForType((TypeImpl)this.casType, getFSGenerator());
 
  
-    casFeat_percent = jcas.getRequiredFeatureDE(casType, "percent", "uima.cas.String", featOkTst);
-    casFeatCode_percent  = (null == casFeat_percent) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_percent).getCode();
+    casFeat_location = jcas.getRequiredFeatureDE(casType, "location", "uima.cas.String", featOkTst);
+    casFeatCode_location  = (null == casFeat_location) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_location).getCode();
 
   }
 }
