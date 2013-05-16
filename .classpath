@@ -12,8 +12,9 @@
 	<classpathentry kind="lib" path="/Users/jp242/Documents/workspace/SemanticSearchAnalysisEngine/lib/opennlp-maxent-3.0.2-incubating.jar"/>
 	<classpathentry kind="lib" path="/Users/jp242/Documents/workspace/SemanticSearchAnalysisEngine/lib/opennlp-tools-1.5.2-incubating.jar"/>
 	<classpathentry kind="lib" path="/Users/jp242/Documents/workspace/SemanticSearchAnalysisEngine/lib/opennlp-uima-1.5.2-incubating.jar"/>
-	<classpathentry kind="var" path="LUCENE_CORE/lucene-core-4.3-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="/Users/jp242/Documents/libs/commons-io-2.2-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="SOLR_CORE/solr-core-4.3-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="LUCENE_CORE/lucene-core-4.3-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="LUCENE_SOLR_UTILS/analysis/common/lucene-analyzers-common-4.3-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
