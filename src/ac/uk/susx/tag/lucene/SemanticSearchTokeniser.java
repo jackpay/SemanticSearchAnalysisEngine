@@ -108,7 +108,6 @@ public class SemanticSearchTokeniser extends Tokenizer {
 		      iterator = null;
 		      return false;
 		    }
-		return false;
 	}
 
 }
