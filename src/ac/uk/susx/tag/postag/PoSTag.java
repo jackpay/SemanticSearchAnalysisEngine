@@ -11,7 +11,7 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** 
- * Updated by JCasGen Tue Apr 16 14:00:40 BST 2013
+ * Updated by JCasGen Fri Apr 19 16:55:45 BST 2013
  * XML source: /Users/jp242/Documents/workspace/SemanticSearchAnalysisEngine/desc/PoSTagAnnotatorDescriptor.xml
  * @generated */
 public class PoSTag extends Annotation {
@@ -83,14 +83,14 @@ public class PoSTag extends Annotation {
   //*--------------*
   //* Feature: token
 
-  /** getter for token - gets The token which has been tagged
+  /** getter for token - gets 
    * @generated */
   public String getToken() {
     if (PoSTag_Type.featOkTst && ((PoSTag_Type)jcasType).casFeat_token == null)
       jcasType.jcas.throwFeatMissing("token", "ac.uk.susx.tag.postag.PoSTag");
     return jcasType.ll_cas.ll_getStringValue(addr, ((PoSTag_Type)jcasType).casFeatCode_token);}
     
-  /** setter for token - sets The token which has been tagged 
+  /** setter for token - sets  
    * @generated */
   public void setToken(String v) {
     if (PoSTag_Type.featOkTst && ((PoSTag_Type)jcasType).casFeat_token == null)

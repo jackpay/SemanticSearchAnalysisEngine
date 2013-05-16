@@ -38,7 +38,7 @@ public class NERAnnotator extends JCasAnnotator_ImplBase {
 			SentenceModel sentenceModel = new SentenceModel(getContext().getResourceAsStream("EnglishSentenceModel"));
 			splitter = new SentenceDetectorME(sentenceModel);
 			
-			TokenizerModel tokModel = new TokenizerModel(getContext().getResourceAsStream("EnglishTokeniserModel"));
+			TokenizerModel tokModel = new TokenizerModel(getContext().getResourceAsStream("EnglishTokenModel"));
 			tokeniser = new TokenizerME(tokModel);
 			
 			TokenNameFinderModel nameModel = new TokenNameFinderModel(getContext().getResourceAsStream("EnglishPersonModel"));
@@ -70,7 +70,6 @@ public class NERAnnotator extends JCasAnnotator_ImplBase {
 		}
 		
 		docText = document.getDocumentText();
-		this.document = document;
 		String[] sentences = splitter.sentDetect(docText);
 		
 		int begin = 0;

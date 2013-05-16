@@ -52,10 +52,15 @@ public class PoSTagAnnotator extends JCasAnnotator_ImplBase {
 			Matcher matcher = pattern.matcher(docText);
 			if(matcher.find(begin)){
 				PoSTag annotation = new PoSTag(document);
+				TokenAnnotation tannotation = new TokenAnnotation(document);
 				annotation.setBegin(matcher.start());
 				annotation.setEnd(matcher.end());
-				annotation.setPostag(tags[i]);
+				tannotation.setBegin(matcher.start());
+				tannotation.setEnd(matcher.end());
+				annotation.setPostag(tags[i] + '-' + tokens[i]);
+				tannotation.setToken(tokens[i]);
 				annotation.setToken(tokens[i]);
+				//tannotation.addToIndexes();
 				annotation.addToIndexes();
 			}
 			begin = matcher.end();

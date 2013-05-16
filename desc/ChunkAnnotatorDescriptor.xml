@@ -2,9 +2,9 @@
 <analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
   <primitive>true</primitive>
-  <annotatorImplementationName>ac.uk.susx.tag.postag.PoSTagAnnotator</annotatorImplementationName>
+  <annotatorImplementationName>ac.uk.susx.tag.chunk.ChunkAnnotator</annotatorImplementationName>
   <analysisEngineMetaData>
-    <name>PoSTagAnnotatorDescriptor</name>
+    <name>ChunkAnnotatorDescriptor</name>
     <description/>
     <version>1.0</version>
     <vendor/>
@@ -13,29 +13,12 @@
     <typeSystemDescription>
       <types>
         <typeDescription>
-          <name>ac.uk.susx.tag.postag.PoSTag</name>
+          <name>ac.uk.susx.tag.chunk.ChunkAnnotation</name>
           <description/>
           <supertypeName>uima.tcas.Annotation</supertypeName>
           <features>
             <featureDescription>
-              <name>postag</name>
-              <description/>
-              <rangeTypeName>uima.cas.String</rangeTypeName>
-            </featureDescription>
-            <featureDescription>
-              <name>token</name>
-              <description/>
-              <rangeTypeName>uima.cas.String</rangeTypeName>
-            </featureDescription>
-          </features>
-        </typeDescription>
-        <typeDescription>
-          <name>ac.uk.susx.tag.postag.TokenAnnotation</name>
-          <description/>
-          <supertypeName>uima.tcas.Annotation</supertypeName>
-          <features>
-            <featureDescription>
-              <name>token</name>
+              <name>chunk</name>
               <description/>
               <rangeTypeName>uima.cas.String</rangeTypeName>
             </featureDescription>
@@ -60,6 +43,11 @@
   </analysisEngineMetaData>
   <externalResourceDependencies>
     <externalResourceDependency>
+      <key>EnglishChunkingModel</key>
+      <description>OpenNLP English language chunking model</description>
+      <optional>false</optional>
+    </externalResourceDependency>
+    <externalResourceDependency>
       <key>EnglishTokeniserModel</key>
       <description>The English language tokeniser model for OpenNLP</description>
       <optional>false</optional>
@@ -69,9 +57,21 @@
       <description>The English language pos tagger model for OpenNLP</description>
       <optional>false</optional>
     </externalResourceDependency>
+    <externalResourceDependency>
+      <key>EnglishSentenceModel</key>
+      <description/>
+      <optional>false</optional>
+    </externalResourceDependency>
   </externalResourceDependencies>
   <resourceManagerConfiguration>
     <externalResources>
+      <externalResource>
+        <name>EnglishChunkingModel</name>
+        <description/>
+        <fileResourceSpecifier>
+          <fileUrl>file:enchunker.bin</fileUrl>
+        </fileResourceSpecifier>
+      </externalResource>
       <externalResource>
         <name>EnglishTokeniserModel</name>
         <description/>
@@ -81,13 +81,24 @@
       </externalResource>
       <externalResource>
         <name>EnglishPoSTagModel</name>
-        <description>English PoSTagModel for OpenNLP</description>
+        <description/>
         <fileResourceSpecifier>
           <fileUrl>file:enposmaxent.bin</fileUrl>
         </fileResourceSpecifier>
       </externalResource>
+      <externalResource>
+        <name>EnglishSentenceModel</name>
+        <description/>
+        <fileResourceSpecifier>
+          <fileUrl>file:ensent.bin</fileUrl>
+        </fileResourceSpecifier>
+      </externalResource>
     </externalResources>
     <externalResourceBindings>
+      <externalResourceBinding>
+        <key>EnglishChunkingModel</key>
+        <resourceName>EnglishChunkingModel</resourceName>
+      </externalResourceBinding>
       <externalResourceBinding>
         <key>EnglishTokeniserModel</key>
         <resourceName>EnglishTokeniserModel</resourceName>
@@ -95,6 +106,10 @@
       <externalResourceBinding>
         <key>EnglishPoSTaggerModel</key>
         <resourceName>EnglishPoSTagModel</resourceName>
+      </externalResourceBinding>
+      <externalResourceBinding>
+        <key>EnglishSentenceModel</key>
+        <resourceName>EnglishSentenceModel</resourceName>
       </externalResourceBinding>
     </externalResourceBindings>
   </resourceManagerConfiguration>

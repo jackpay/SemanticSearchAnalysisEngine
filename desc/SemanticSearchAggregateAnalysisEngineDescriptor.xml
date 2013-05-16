@@ -3,6 +3,9 @@
   <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
   <primitive>false</primitive>
   <delegateAnalysisEngineSpecifiers>
+    <delegateAnalysisEngine key="ChunkAnnotatorDescriptor">
+      <import location="ChunkAnnotatorDescriptor.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="NERAnnotatorDescriptor">
       <import location="NERAnnotatorDescriptor.xml"/>
     </delegateAnalysisEngine>
@@ -25,6 +28,7 @@
         <node>SentenceAnnotatorDescriptor</node>
         <node>PoSTagAnnotatorDescriptor</node>
         <node>NERAnnotatorDescriptor</node>
+        <node>ChunkAnnotatorDescriptor</node>
       </fixedFlow>
     </flowConstraints>
     <typePriorities/>
@@ -36,6 +40,7 @@
           <type allAnnotatorFeatures="true">ac.uk.susx.tag.sentann.SentenceAnnotation</type>
           <type allAnnotatorFeatures="true">ac.uk.susx.tag.postag.PoSTag</type>
           <type allAnnotatorFeatures="true">ac.uk.susx.tag.ner.PersonAnnotation</type>
+          <type allAnnotatorFeatures="true">ac.uk.susx.tag.chunk.ChunkAnnotation</type>
         </outputs>
         <languagesSupported>
           <language>en</language>

@@ -1,5 +1,5 @@
 
-/* First created by JCasGen Wed Apr 10 14:09:03 BST 2013 */
+/* First created by JCasGen Fri Apr 19 15:20:49 BST 2013 */
 package ac.uk.susx.tag.postag;
 
 import org.apache.uima.jcas.JCas;
@@ -16,7 +16,7 @@ import org.apache.uima.jcas.tcas.Annotation_Type;
 /** 
  * Updated by JCasGen Fri Apr 19 16:55:45 BST 2013
  * @generated */
-public class PoSTag_Type extends Annotation_Type {
+public class TokenAnnotation_Type extends Annotation_Type {
   /** @generated */
   @Override
   protected FSGenerator getFSGenerator() {return fsGenerator;}
@@ -24,43 +24,25 @@ public class PoSTag_Type extends Annotation_Type {
   private final FSGenerator fsGenerator = 
     new FSGenerator() {
       public FeatureStructure createFS(int addr, CASImpl cas) {
-  			 if (PoSTag_Type.this.useExistingInstance) {
+  			 if (TokenAnnotation_Type.this.useExistingInstance) {
   			   // Return eq fs instance if already created
-  		     FeatureStructure fs = PoSTag_Type.this.jcas.getJfsFromCaddr(addr);
+  		     FeatureStructure fs = TokenAnnotation_Type.this.jcas.getJfsFromCaddr(addr);
   		     if (null == fs) {
-  		       fs = new PoSTag(addr, PoSTag_Type.this);
-  			   PoSTag_Type.this.jcas.putJfsFromCaddr(addr, fs);
+  		       fs = new TokenAnnotation(addr, TokenAnnotation_Type.this);
+  			   TokenAnnotation_Type.this.jcas.putJfsFromCaddr(addr, fs);
   			   return fs;
   		     }
   		     return fs;
-        } else return new PoSTag(addr, PoSTag_Type.this);
+        } else return new TokenAnnotation(addr, TokenAnnotation_Type.this);
   	  }
     };
   /** @generated */
   @SuppressWarnings ("hiding")
-  public final static int typeIndexID = PoSTag.typeIndexID;
+  public final static int typeIndexID = TokenAnnotation.typeIndexID;
   /** @generated 
      @modifiable */
   @SuppressWarnings ("hiding")
-  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ac.uk.susx.tag.postag.PoSTag");
- 
-  /** @generated */
-  final Feature casFeat_postag;
-  /** @generated */
-  final int     casFeatCode_postag;
-  /** @generated */ 
-  public String getPostag(int addr) {
-        if (featOkTst && casFeat_postag == null)
-      jcas.throwFeatMissing("postag", "ac.uk.susx.tag.postag.PoSTag");
-    return ll_cas.ll_getStringValue(addr, casFeatCode_postag);
-  }
-  /** @generated */    
-  public void setPostag(int addr, String v) {
-        if (featOkTst && casFeat_postag == null)
-      jcas.throwFeatMissing("postag", "ac.uk.susx.tag.postag.PoSTag");
-    ll_cas.ll_setStringValue(addr, casFeatCode_postag, v);}
-    
-  
+  public final static boolean featOkTst = JCasRegistry.getFeatOkTst("ac.uk.susx.tag.postag.TokenAnnotation");
  
   /** @generated */
   final Feature casFeat_token;
@@ -69,13 +51,13 @@ public class PoSTag_Type extends Annotation_Type {
   /** @generated */ 
   public String getToken(int addr) {
         if (featOkTst && casFeat_token == null)
-      jcas.throwFeatMissing("token", "ac.uk.susx.tag.postag.PoSTag");
+      jcas.throwFeatMissing("token", "ac.uk.susx.tag.postag.TokenAnnotation");
     return ll_cas.ll_getStringValue(addr, casFeatCode_token);
   }
   /** @generated */    
   public void setToken(int addr, String v) {
         if (featOkTst && casFeat_token == null)
-      jcas.throwFeatMissing("token", "ac.uk.susx.tag.postag.PoSTag");
+      jcas.throwFeatMissing("token", "ac.uk.susx.tag.postag.TokenAnnotation");
     ll_cas.ll_setStringValue(addr, casFeatCode_token, v);}
     
   
@@ -84,13 +66,9 @@ public class PoSTag_Type extends Annotation_Type {
 
   /** initialize variables to correspond with Cas Type and Features
 	* @generated */
-  public PoSTag_Type(JCas jcas, Type casType) {
+  public TokenAnnotation_Type(JCas jcas, Type casType) {
     super(jcas, casType);
     casImpl.getFSClassRegistry().addGeneratorForType((TypeImpl)this.casType, getFSGenerator());
-
- 
-    casFeat_postag = jcas.getRequiredFeatureDE(casType, "postag", "uima.cas.String", featOkTst);
-    casFeatCode_postag  = (null == casFeat_postag) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_postag).getCode();
 
  
     casFeat_token = jcas.getRequiredFeatureDE(casType, "token", "uima.cas.String", featOkTst);

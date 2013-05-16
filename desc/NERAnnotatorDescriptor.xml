@@ -103,16 +103,6 @@
   </analysisEngineMetaData>
   <externalResourceDependencies>
     <externalResourceDependency>
-      <key>EnglishSentenceModel</key>
-      <description/>
-      <optional>false</optional>
-    </externalResourceDependency>
-    <externalResourceDependency>
-      <key>EnglishTokeniserModel</key>
-      <description/>
-      <optional>false</optional>
-    </externalResourceDependency>
-    <externalResourceDependency>
       <key>EnglishDateModel</key>
       <description/>
       <optional>false</optional>
@@ -134,6 +124,16 @@
     </externalResourceDependency>
     <externalResourceDependency>
       <key>EnglishPersonModel</key>
+      <description/>
+      <optional>false</optional>
+    </externalResourceDependency>
+    <externalResourceDependency>
+      <key>EnglishSentenceModel</key>
+      <description/>
+      <optional>false</optional>
+    </externalResourceDependency>
+    <externalResourceDependency>
+      <key>EnglishTokenModel</key>
       <description/>
       <optional>false</optional>
     </externalResourceDependency>
@@ -188,17 +188,17 @@
         </fileResourceSpecifier>
       </externalResource>
       <externalResource>
-        <name>EnglishTokeniserModel</name>
-        <description/>
-        <fileResourceSpecifier>
-          <fileUrl>file:entoken.bin</fileUrl>
-        </fileResourceSpecifier>
-      </externalResource>
-      <externalResource>
         <name>EnglishSentenceModel</name>
         <description/>
         <fileResourceSpecifier>
           <fileUrl>file:ensent.bin</fileUrl>
+        </fileResourceSpecifier>
+      </externalResource>
+      <externalResource>
+        <name>EnglishTokenModel</name>
+        <description/>
+        <fileResourceSpecifier>
+          <fileUrl>file:entoken.bin</fileUrl>
         </fileResourceSpecifier>
       </externalResource>
     </externalResources>
@@ -216,6 +216,10 @@
         <resourceName>EnglishNEROrganisationModel</resourceName>
       </externalResourceBinding>
       <externalResourceBinding>
+        <key>EnglishPercentageModel</key>
+        <resourceName>EnglishNERPercentageModel</resourceName>
+      </externalResourceBinding>
+      <externalResourceBinding>
         <key>EnglishPersonModel</key>
         <resourceName>EnglishNERPersonModel</resourceName>
       </externalResourceBinding>
@@ -228,12 +232,8 @@
         <resourceName>EnglishSentenceModel</resourceName>
       </externalResourceBinding>
       <externalResourceBinding>
-        <key>EnglishTokeniserModel</key>
-        <resourceName>EnglishTokeniserModel</resourceName>
-      </externalResourceBinding>
-      <externalResourceBinding>
-        <key>EnglishPercentageModel</key>
-        <resourceName>EnglishNERPercentageModel</resourceName>
+        <key>EnglishTokenModel</key>
+        <resourceName>EnglishTokenModel</resourceName>
       </externalResourceBinding>
     </externalResourceBindings>
   </resourceManagerConfiguration>
