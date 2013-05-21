@@ -42,7 +42,7 @@ public class PoSTagAnnotator extends JCasAnnotator_ImplBase {
 		}
 		
 		String docText = document.getDocumentText();
-		
+		System.err.println(docText);
 		String[] tokens = tokeniser.tokenize(docText);
 		String[] tags = posTagger.tag(tokens);
 		
