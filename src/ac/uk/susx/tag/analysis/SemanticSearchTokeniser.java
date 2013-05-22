@@ -106,9 +106,6 @@ public class SemanticSearchTokeniser extends Tokenizer {
 		      offsetAttr.setOffset(next.getBegin(), next.getEnd());
 		      typeAttr.setType(featurePath.getValueAsString(next));
 		      positionIncrementAttr.setPositionIncrement(posInc);
-		      System.err.println(typeAttr.type());
-		      System.err.println(termAttr.toString());
-		      System.err.println(positionIncrementAttr.getPositionIncrement());
 		      return true;
 		    } else {
 		      iterator = null;
