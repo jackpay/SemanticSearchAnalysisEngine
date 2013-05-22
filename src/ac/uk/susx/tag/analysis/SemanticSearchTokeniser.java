@@ -23,7 +23,6 @@ import org.apache.uima.util.XMLInputSource;
 
 public class SemanticSearchTokeniser extends Tokenizer {
 	
-	private Reader input;
 	private String descriptorPath;
 	private String stringTokenType;
 	private FSIterator<AnnotationFS> iterator;
@@ -36,14 +35,13 @@ public class SemanticSearchTokeniser extends Tokenizer {
 
 	protected SemanticSearchTokeniser(Reader input, String descriptorPath, String tokenType, String typeAttributeFeaturePath) {
 		super(input);
-		this.input = input;
 		this.descriptorPath = descriptorPath;
 		this.stringTokenType = tokenType;
 		this.typeAttributeFeaturePath = typeAttributeFeaturePath;
 		this.termAttr = addAttribute(CharTermAttribute.class);
 		this.offsetAttr = addAttribute(OffsetAttribute.class);
 		this.typeAttr = addAttribute(TypeAttribute.class);
-		this.positionIncrementAttr = addAttribute(PositionIncrementAttribute.class);
+		//this.positionIncrementAttr = addAttribute(PositionIncrementAttribute.class);
 	}
 	
 	private void processText(){
@@ -71,6 +69,7 @@ public class SemanticSearchTokeniser extends Tokenizer {
 			}
 			Type type = cas.getTypeSystem().getType(stringTokenType);
 			iterator = cas.getAnnotationIndex(type).iterator();
+			positionIncrementAttr.setPositionIncrement(0);
 	}
 	
 	private CAS getCAS() throws CASRuntimeException, IOException, InvalidXMLException, ResourceInitializationException, AnalysisEngineProcessException, CASException{
@@ -90,6 +89,7 @@ public class SemanticSearchTokeniser extends Tokenizer {
 	
 	@Override
 	public boolean incrementToken() throws IOException {
+		int posInc = 1;
 		if(iterator == null){
 			try {
 				processText();
@@ -105,7 +105,10 @@ public class SemanticSearchTokeniser extends Tokenizer {
 		      termAttr.setLength(next.getCoveredText().length());
 		      offsetAttr.setOffset(next.getBegin(), next.getEnd());
 		      typeAttr.setType(featurePath.getValueAsString(next));
-		      positionIncrementAttr.setPositionIncrement(next.getEnd() - next.getBegin());
+		      positionIncrementAttr.setPositionIncrement(posInc);
+		      System.err.println(typeAttr.type());
+		      System.err.println(termAttr.toString());
+		      System.err.println(positionIncrementAttr.getPositionIncrement());
 		      return true;
 		    } else {
 		      iterator = null;

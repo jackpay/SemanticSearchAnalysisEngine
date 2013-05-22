@@ -3,6 +3,8 @@ package ac.uk.susx.tag.analysis;
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.standard.StandardTokenizer;
+import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
 import org.apache.lucene.analysis.util.TokenizerFactory;
 
 public class PoSTagTokeniserFactory extends TokenizerFactory{

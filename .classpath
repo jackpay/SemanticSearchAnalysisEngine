@@ -13,8 +13,8 @@
 	<classpathentry kind="lib" path="/Users/jp242/Documents/workspace/SemanticSearchAnalysisEngine/lib/opennlp-tools-1.5.2-incubating.jar"/>
 	<classpathentry kind="lib" path="/Users/jp242/Documents/workspace/SemanticSearchAnalysisEngine/lib/opennlp-uima-1.5.2-incubating.jar"/>
 	<classpathentry kind="lib" path="/Users/jp242/Documents/libs/commons-io-2.2-SNAPSHOT.jar"/>
-	<classpathentry kind="var" path="SOLR_CORE_4_1/solr-core/solr-core-4.1-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="LUCENE_CORE_3_6_2"/>
 	<classpathentry kind="var" path="SOLR_CORE_4_1/lucene-libs/lucene-analyzers-common-4.1-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="SOLR_CORE_4_1/solr-core/solr-core-4.1-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

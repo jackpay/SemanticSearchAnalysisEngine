@@ -22,23 +22,6 @@
               <description/>
               <rangeTypeName>uima.cas.String</rangeTypeName>
             </featureDescription>
-            <featureDescription>
-              <name>token</name>
-              <description/>
-              <rangeTypeName>uima.cas.String</rangeTypeName>
-            </featureDescription>
-          </features>
-        </typeDescription>
-        <typeDescription>
-          <name>ac.uk.susx.tag.postag.TokenAnnotation</name>
-          <description/>
-          <supertypeName>uima.tcas.Annotation</supertypeName>
-          <features>
-            <featureDescription>
-              <name>token</name>
-              <description/>
-              <rangeTypeName>uima.cas.String</rangeTypeName>
-            </featureDescription>
           </features>
         </typeDescription>
       </types>
