@@ -5,10 +5,10 @@ import java.io.Reader;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.util.TokenizerFactory;
 
-public class PoSTagTokeniserFactory extends TokenizerFactory{
+public class PersonTokeniserFactory extends TokenizerFactory{
 
 	@Override
 	public Tokenizer create(Reader input) {
-		return new SemanticSearchTokeniser(input, "/desc/PoSTagAnnotatorDescriptor.xml", "ac.uk.susx.tag.postag.PoSTag", "postag");
+		return new SemanticSearchTokeniser(input, "/desc/NERAnnotatorDescriptor.xml", "ac.uk.susx.tag.ner.PersonAnnotation", "person");
 	}
 }
