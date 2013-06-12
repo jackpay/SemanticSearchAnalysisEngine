@@ -9,6 +9,6 @@ public class PoSTagTokeniserFactory extends TokenizerFactory{
 
 	@Override
 	public Tokenizer create(Reader input) {
-		return new SemanticSearchTokeniser(input, "/desc/PoSTagAnnotatorDescriptor.xml", "ac.uk.susx.tag.postag.PoSTag", "postag");
+		return new SemanticSearchPayloadTokeniser(input, "/desc/PoSTagAnnotatorDescriptor.xml", "ac.uk.susx.tag.postag.PoSTag", "postag");
 	}
 }

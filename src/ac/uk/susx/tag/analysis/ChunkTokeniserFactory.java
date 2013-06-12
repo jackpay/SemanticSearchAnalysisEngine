@@ -9,6 +9,6 @@ public class ChunkTokeniserFactory extends TokenizerFactory{
 
 	@Override
 	public Tokenizer create(Reader input) {
-		return new SemanticSearchTokeniser(input, "/desc/ChunkAnnotatorDescriptor.xml", "ac.uk.susx.tag.chunk.ChunkAnnotation", "chunk");
+		return new SemanticSearchPayloadTokeniser(input, "/desc/ChunkAnnotatorDescriptor.xml", "ac.uk.susx.tag.chunk.ChunkAnnotation", "chunk");
 	}
 }
