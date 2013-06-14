@@ -3,6 +3,7 @@ package ac.uk.susx.tag.query;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
@@ -10,8 +11,12 @@ import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.InvalidFormatException;
 
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.payloads.PayloadTermQuery;
+import org.apache.lucene.search.spans.SpanMultiTermQueryWrapper;
 import org.apache.lucene.search.spans.SpanQuery;
 import org.apache.lucene.search.spans.SpanTermQuery;
 import org.apache.lucene.util.BytesRef;
@@ -35,11 +40,11 @@ import ac.uk.susx.tag.query.payload.SemanticPayloadTermQuery;
  * @author jackpay
  *
  */
-public class SemanticQParserPlugin extends QParserPlugin{
+public class SemanticQParserPlugin extends QParserPlugin {
 	
 	private static final String NAME = "semantic";
 	
-	public SemanticQParserPlugin(){}
+	public SemanticQParserPlugin() {}
 
 	@Override
 	public void init(NamedList arg0) {}
@@ -51,7 +56,7 @@ public class SemanticQParserPlugin extends QParserPlugin{
 	}
 	
 	
-	public class SemanticQParser extends QParser{
+	public class SemanticQParser extends QParser {
 		
 		private String defaultField;
 
@@ -67,17 +72,30 @@ public class SemanticQParserPlugin extends QParserPlugin{
 		    if (qstr == null || qstr.length() == 0) return null;
 
 		    SemanticQueryAnalyser sqa = new SemanticQueryAnalyser();
-		    if(sqa.isSemanticQuery()){
+		    if(sqa.isSemanticQuery()) {
 		    	System.err.println("IsSemantic!");
 		    	BytesRef tag = sqa.getPayload();
-		    	System.err.println(tag.toString());
 		    	System.err.println(getParam(QueryParsing.V));
 		    	
-		    	if(!sqa.isPhraseQuery()){
+		    	if(!sqa.isProximityQuery()) {
+		    		if(sqa.isChunkandPoS()) {
+		    			System.err.println("Boolean Query");
+		    			SemanticPayloadTermQuery posQuery = new SemanticPayloadTermQuery(new Term(sqa.getPoSField(), getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), false, sqa.getPoSTagPayload());
+		    			SemanticPayloadTermQuery chunkQuery = new SemanticPayloadTermQuery(new Term(sqa.getChunkField(), getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), false, sqa.getChunkPayload());
+		    			BooleanQuery boolQuery = new BooleanQuery();
+		    			boolQuery.add(chunkQuery, BooleanClause.Occur.MUST);
+		    			boolQuery.add(posQuery, BooleanClause.Occur.MUST);
+		    			return boolQuery;
+		    		}
 		    		return new SemanticPayloadTermQuery(new Term(defaultField, getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), false, tag);
 		    	}
 		    	else{
-		    		return new SemanticPayloadNearSpanQuery(sqa.getTerms() , sqa.getDistance(), false, tag, defaultField);
+		    		try {
+						return new SemanticPayloadNearSpanQuery(sqa.getSpans() , sqa.getDistance(), false, tag, defaultField);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 		    	}
 		    }
 		    System.err.println("IsNotSemantic!");
@@ -86,67 +104,119 @@ public class SemanticQParserPlugin extends QParserPlugin{
 		
 		public class SemanticQueryAnalyser {
 			
+			// Query parameter prefixes
 			private static final String POSTAG = "postype";
 			private static final String POSTAG_FIELD = "postag";
-			private static final String CHUNK_FIELD = "chunk";
+			private static final String CHUNK_FIELD = "chunktoken";
 			private static final String CHUNK = "chunktype";
-			private static final String PROX = "phr";
 			private static final String DIST = "tdist";
 			private static final String IN_CHUNK = "inck";
 			
+			// Used to chain a number of tags (1 per search token) TODO: Add functionality to enable this.
+			private final String TAG_DELIM = "\\+";
 			
-			public SemanticQueryAnalyser(){ }
 			
-			public boolean isSemanticQuery(){
+			public SemanticQueryAnalyser() { }
+			
+			public BytesRef getPayload() {
+				if(getParam(CHUNK) != null){
+					return new BytesRef(getParam(CHUNK));
+				}
+				return new BytesRef(getParam(POSTAG));
+			}
+
+			public boolean isSemanticQuery() {
 				System.out.println(getParam(POSTAG) != null);
 				if(getParam(POSTAG) != null){
 					defaultField = POSTAG_FIELD;
 				}
 				else{
-					if(getParam(CHUNK) != null){
+					if(getParam(CHUNK) != null) {
 						defaultField = CHUNK_FIELD;
 					}
 				}
 				return getParam(POSTAG) != null || getParam(CHUNK) != null;
 			}
 			
-			public boolean isPhraseQuery(){
-				if(getParam(PROX) != null){
-					if(getParam(PROX).equals("false")){
-						return false;
-					}
-				}
-				return true;
+			public boolean isProximityQuery() {
+				return tokenise().length > 1;
 			}
 			
-			public int getDistance(){
-				if(getParam(DIST) != null){
+			public boolean isInChunk() {
+				return getParam(IN_CHUNK) != null;
+			}
+			
+			public boolean isChunkandPoS() {
+				return (getParam(POSTAG) != null && getParam(CHUNK) != null);
+			}
+			
+			public int getDistance() {
+				if(getParam(DIST) != null) {
 					try{
 						int dist = Integer.parseInt(getParam(DIST));
-						System.err.println(dist);
 						return dist;
 					}
 					catch (Exception e){
 						return Integer.MAX_VALUE;
 					}
 				}
-				System.err.println(getParam(DIST) != null + " - is null");
 				return Integer.MAX_VALUE;
 			}
 			
-			public SpanQuery[] getTerms(){
+			public String[] getTags() {
+				if(getParam(POSTAG) != null) {
+					return getParam(POSTAG).split(TAG_DELIM);
+				}
+				return getParam(CHUNK).split(TAG_DELIM);
+			}
+			
+			public SpanQuery[] getSpans() throws IOException {
+				String[] tokens = tokenise();
+				
+				String[] tags = getTags();
+				if(tags.length != tokens.length && tags.length != 1) {
+					throw new IOException("Number of tags must be singular or equal to the number of search terms");
+				}
+				
+				SpanQuery[] terms = new SpanQuery[tokens.length];
+				for(int i = 0; i < terms.length; i++) {
+					if(tokens[i].equals("*") || tokens[i].contains("?") || tokens[i].contains("*")){
+						WildcardQuery wildcard = new WildcardQuery(new Term(defaultField, tokens[i]));
+						SpanQuery sq = new SpanMultiTermQueryWrapper<WildcardQuery>(wildcard);
+						terms[i] = sq;
+					}
+					else{
+						String tag = (tags.length > 1) ? tags[i] : tags[0];
+						terms[i] = new SemanticPayloadTermQuery(new Term(defaultField, tokens[i]), new SemanticPayloadTermFunction(), true, new BytesRef(tag));
+					}
+				}
+				return terms;
+			}
+			
+			public BytesRef getPoSTagPayload() {
+				return new BytesRef(getParam(POSTAG));
+			}
+			
+			public BytesRef getChunkPayload() {
+				return new BytesRef(getParam(CHUNK));
+			}
+			
+			public String getPoSField() {
+				return POSTAG_FIELD;
+			}
+			
+			public String getChunkField() {
+				return CHUNK_FIELD;
+			}
+			
+			public String[] tokenise() {
 				String qstr = getParam(QueryParsing.V);
 				TokenizerModel model;
 				try {
 					model = new TokenizerModel(this.getClass().getResourceAsStream("/entoken.bin"));
-
 					Tokenizer tokeniser = new TokenizerME(model);
 					String[] tokens = tokeniser.tokenize(qstr);
-					SpanTermQuery[] terms = new SpanTermQuery[tokens.length];
-					for(int i = 0; i < terms.length; i++){
-						terms[i] = new SpanTermQuery(new Term(defaultField, tokens[i]));
-					}
-					return terms;
+					return tokens;
 					
 				} catch (InvalidFormatException e) {
 					// TODO Auto-generated catch block
@@ -157,17 +227,9 @@ public class SemanticQParserPlugin extends QParserPlugin{
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
-				return null;
-			}
-			
-			public BytesRef getPayload(){
-				if(getParam(POSTAG) != null){
-					System.err.println(getParam(POSTAG));
-					return new BytesRef(getParam(POSTAG));
-				}
-				if(getParam(CHUNK) != null){
-					return new BytesRef(getParam(CHUNK));
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 				return null;
 			}

@@ -22,6 +22,8 @@ import org.apache.uima.resource.ResourceAccessException;
 
 public class ChunkAnnotator extends JCasAnnotator_ImplBase {
 	
+	private static final String CHUNK_START = "B-";
+	
 	private SentenceDetectorME splitter;
 	private TokenizerME tokeniser;
 	private POSTaggerME posTagger;
@@ -85,7 +87,7 @@ public class ChunkAnnotator extends JCasAnnotator_ImplBase {
 					}
 				}
 				annotation.setEnd(tracer);
-				annotation.setChunk(chunkTags[span.getStart()]);
+				annotation.setChunk(chunkTags[span.getStart()].replace(CHUNK_START, ""));
 				annotation.addToIndexes();
 			}
 			Pattern pattern = Pattern.compile(Pattern.quote(sentence));

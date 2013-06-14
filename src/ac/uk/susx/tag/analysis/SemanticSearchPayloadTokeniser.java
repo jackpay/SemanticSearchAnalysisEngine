@@ -92,7 +92,7 @@ public class SemanticSearchPayloadTokeniser extends Tokenizer {
 	}
 	
 	@Override
-	public boolean incrementToken() throws IOException {
+	public boolean incrementToken() throws IOException {	
 		int posInc = 1;
 		if(iterator == null){
 			try {

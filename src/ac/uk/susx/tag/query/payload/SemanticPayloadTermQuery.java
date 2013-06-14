@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.PositiveScoresOnlyCollector;
 import org.apache.lucene.search.Weight;
 import org.apache.lucene.search.payloads.PayloadFunction;
 import org.apache.lucene.search.payloads.PayloadTermQuery;
@@ -16,7 +17,7 @@ public class SemanticPayloadTermQuery extends PayloadTermQuery {
 	public SemanticPayloadTermQuery(Term term, PayloadFunction function, boolean includeSpanScore,BytesRef compTag) {
 		super(term, function, includeSpanScore);
 		this.compTag = compTag;
-		System.err.println(compTag.toString());
+		System.err.println(compTag.toString() + " - compTag");
 	}
 	
 	  @Override
@@ -36,6 +37,10 @@ public class SemanticPayloadTermQuery extends PayloadTermQuery {
 		  int result = super.hashCode();
 		  result = prime * result + compTag.hashCode();
 	    return result;
+	  }
+	  
+	  public BytesRef getCompTag(){
+		  return compTag;
 	  }
 	
 }

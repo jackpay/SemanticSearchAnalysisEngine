@@ -23,6 +23,9 @@ import org.apache.uima.resource.ResourceAccessException;
 import ac.uk.susx.tag.chunk.ChunkAnnotation;
 
 public class ChunkTokenAnnotator extends JCasAnnotator_ImplBase {
+	
+	private static final String CHUNK_START = "B-";
+	private static final String CHUNK_MID = "I-";
 
 	private SentenceDetectorME splitter;
 	private TokenizerME tokeniser;
@@ -65,31 +68,47 @@ public class ChunkTokenAnnotator extends JCasAnnotator_ImplBase {
 			String[] posTags = posTagger.tag(tokens);
 			Span[] chunks = chunker.chunkAsSpans(tokens, posTags);
 			String[] chunkTags = chunker.chunk(tokens, posTags);
-
-			int tracer = begin;
-			for(Span span : chunks){
-				ChunkAnnotation annotation = new ChunkAnnotation(document);
-				Pattern pattern = Pattern.compile(Pattern.quote(tokens[span.getStart()]));
+			
+			int chunkBegin = begin;
+			for(int i = 0; i < chunkTags.length; i++){
+				Pattern pattern = Pattern.compile(Pattern.quote(tokens[i]));
 				Matcher matcher = pattern.matcher(docText);
-				if(matcher.find(tracer)){
-					annotation.setBegin(matcher.start());
-					tracer = matcher.end();
+				if(matcher.find(chunkBegin)){
+					ChunkTokenAnnotation chunkAnn = new ChunkTokenAnnotation(document);
+					chunkAnn.setBegin(matcher.start());
+					chunkAnn.setEnd(matcher.end());
+					String chunkTag = chunkTags[i].replace(CHUNK_START, "");
+					chunkTag = chunkTag.replace(CHUNK_MID, "");
+					chunkAnn.setChunk_token(chunkTag);
+					chunkAnn.addToIndexes();
 				}
-				if(span.getStart() < span.getEnd()){
-					int it = span.getStart() + 1;
-					while(it < span.getEnd()){
-						Pattern patt = Pattern.compile(Pattern.quote(tokens[it]));
-						Matcher mtchr = patt.matcher(docText);
-						if(mtchr.find(tracer)){
-							tracer = mtchr.end();
-						}
-						it++;
-					}
-				}
-				annotation.setEnd(tracer);
-				annotation.setChunk(chunkTags[span.getStart()]);
-				annotation.addToIndexes();
+				chunkBegin = matcher.end();
 			}
+			
+//			int tracer = begin;
+//			for(Span span : chunks){
+//				ChunkAnnotation annotation = new ChunkAnnotation(document);
+//				Pattern pattern = Pattern.compile(Pattern.quote(tokens[span.getStart()]));
+//				Matcher matcher = pattern.matcher(docText);
+//				if(matcher.find(tracer)){
+//					annotation.setBegin(matcher.start());
+//					tracer = matcher.end();
+//				}
+//				if(span.getStart() < span.getEnd()){
+//					int it = span.getStart() + 1;
+//					while(it < span.getEnd()){
+//						Pattern patt = Pattern.compile(Pattern.quote(tokens[it]));
+//						Matcher mtchr = patt.matcher(docText);
+//						if(mtchr.find(tracer)){
+//							tracer = mtchr.end();
+//						}
+//						it++;
+//					}
+//				}
+//				annotation.setEnd(tracer);
+//				annotation.setChunk(chunkTags[span.getStart()].replace(CHUNK_START, ""));
+//				annotation.addToIndexes();
+//			}
 			Pattern pattern = Pattern.compile(Pattern.quote(sentence));
 			Matcher matcher = pattern.matcher(docText);
 			matcher.find();

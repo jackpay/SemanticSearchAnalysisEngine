@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Weight;
-import org.apache.lucene.search.payloads.AveragePayloadFunction;
 import org.apache.lucene.search.payloads.PayloadNearQuery;
 import org.apache.lucene.search.spans.SpanQuery;
+import org.apache.lucene.search.spans.SpanWeight;
 import org.apache.lucene.util.BytesRef;
 
 public class SemanticPayloadNearSpanQuery extends PayloadNearQuery {
@@ -15,7 +15,7 @@ public class SemanticPayloadNearSpanQuery extends PayloadNearQuery {
 	
 	public SemanticPayloadNearSpanQuery(SpanQuery[] clauses, int slop,
 			boolean inOrder, BytesRef compPayload, String fieldName) {
-		super(clauses, slop, inOrder, new AveragePayloadFunction());
+		super(clauses, slop, inOrder, new SemanticPayloadTermFunction());
 		this.fieldName =  fieldName;
 		this.compTag = compPayload;
 	}
@@ -25,7 +25,6 @@ public class SemanticPayloadNearSpanQuery extends PayloadNearQuery {
 		  if(searcher.getSimilarity().getClass() == SemanticPayloadTermSimilarity.class){
 			  SemanticPayloadTermSimilarity ss = (SemanticPayloadTermSimilarity) searcher.getSimilarity();
 			  ss.setCompPayload(compTag);
-			  System.err.println("compTag-SET");
 		  }
 	    return new PayloadNearSpanWeight(this, searcher);
 	  }
