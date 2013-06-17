@@ -3,6 +3,8 @@ package ac.uk.susx.tag.query;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import opennlp.tools.tokenize.Tokenizer;
@@ -13,10 +15,15 @@ import opennlp.tools.util.InvalidFormatException;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.FilteredQuery;
+import org.apache.lucene.search.NumericRangeFilter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.payloads.PayloadTermQuery;
 import org.apache.lucene.search.spans.SpanMultiTermQueryWrapper;
+import org.apache.lucene.search.spans.SpanNearPayloadCheckQuery;
+import org.apache.lucene.search.spans.SpanPayloadCheckQuery;
 import org.apache.lucene.search.spans.SpanQuery;
 import org.apache.lucene.search.spans.SpanTermQuery;
 import org.apache.lucene.util.BytesRef;
@@ -75,6 +82,8 @@ public class SemanticQParserPlugin extends QParserPlugin {
 		    if(sqa.isSemanticQuery()) {
 		    	System.err.println("IsSemantic!");
 		    	BytesRef tag = sqa.getPayload();
+	    		ArrayList<byte[]> payload = new ArrayList<byte[]>();
+	    		payload.add(tag.bytes);
 		    	System.err.println(getParam(QueryParsing.V));
 		    	
 		    	if(!sqa.isProximityQuery()) {
@@ -87,11 +96,19 @@ public class SemanticQParserPlugin extends QParserPlugin {
 		    			boolQuery.add(posQuery, BooleanClause.Occur.MUST);
 		    			return boolQuery;
 		    		}
-		    		return new SemanticPayloadTermQuery(new Term(defaultField, getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), false, tag);
+		    		Filter f = NumericRangeFilter.newFloatRange("score", 0.00f, null, true, true);
+
+		    		System.err.println(payload.size() + "-size");
+		    		System.err.println(tag.length);
+		    		System.err.println(tag.bytes.length);
+		    		System.err.println(tag);
+		    		System.err.println(new BytesRef(payload.get(0)));
+		    		return new SpanPayloadCheckQuery(new SpanTermQuery(new Term(defaultField, getParam(QueryParsing.V))),payload);
+		    		//return new SpanPayloadCheckQuery(new SemanticPayloadTermQuery(new Term(defaultField, getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), false, tag),payload);
 		    	}
 		    	else{
 		    		try {
-						return new SemanticPayloadNearSpanQuery(sqa.getSpans() , sqa.getDistance(), false, tag, defaultField);
+						return new SpanNearPayloadCheckQuery(new SemanticPayloadNearSpanQuery(sqa.getSpans() , sqa.getDistance(), false, tag, defaultField), payload);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -120,9 +137,9 @@ public class SemanticQParserPlugin extends QParserPlugin {
 			
 			public BytesRef getPayload() {
 				if(getParam(CHUNK) != null){
-					return new BytesRef(getParam(CHUNK));
+					return getChunkPayload();
 				}
-				return new BytesRef(getParam(POSTAG));
+				return getPoSTagPayload();
 			}
 
 			public boolean isSemanticQuery() {
@@ -180,6 +197,7 @@ public class SemanticQParserPlugin extends QParserPlugin {
 				
 				SpanQuery[] terms = new SpanQuery[tokens.length];
 				for(int i = 0; i < terms.length; i++) {
+					System.err.println(terms[i]);
 					if(tokens[i].equals("*") || tokens[i].contains("?") || tokens[i].contains("*")){
 						WildcardQuery wildcard = new WildcardQuery(new Term(defaultField, tokens[i]));
 						SpanQuery sq = new SpanMultiTermQueryWrapper<WildcardQuery>(wildcard);
@@ -187,18 +205,30 @@ public class SemanticQParserPlugin extends QParserPlugin {
 					}
 					else{
 						String tag = (tags.length > 1) ? tags[i] : tags[0];
-						terms[i] = new SemanticPayloadTermQuery(new Term(defaultField, tokens[i]), new SemanticPayloadTermFunction(), true, new BytesRef(tag));
+						terms[i] = new SemanticPayloadTermQuery(new Term(defaultField, tokens[i]), new SemanticPayloadTermFunction(), true, new BytesRef(tag.getBytes()));
 					}
 				}
 				return terms;
 			}
 			
 			public BytesRef getPoSTagPayload() {
-				return new BytesRef(getParam(POSTAG));
+				return new BytesRef(getParam(POSTAG).getBytes());
+			}
+			
+			public byte[] optimiseBytes(byte[] b){
+
+				boolean found = false;
+				int i = 0;
+				while(!found){
+					System.err.println(i + " " + b[i]);
+					found = b[i] == (byte) 0 ? true : false;
+					i++;
+				}
+				return Arrays.copyOfRange(b, 0, i-1);
 			}
 			
 			public BytesRef getChunkPayload() {
-				return new BytesRef(getParam(CHUNK));
+				return new BytesRef(getParam(CHUNK).getBytes());
 			}
 			
 			public String getPoSField() {
@@ -211,27 +241,13 @@ public class SemanticQParserPlugin extends QParserPlugin {
 			
 			public String[] tokenise() {
 				String qstr = getParam(QueryParsing.V);
-				TokenizerModel model;
-				try {
-					model = new TokenizerModel(this.getClass().getResourceAsStream("/entoken.bin"));
-					Tokenizer tokeniser = new TokenizerME(model);
-					String[] tokens = tokeniser.tokenize(qstr);
-					return tokens;
-					
-				} catch (InvalidFormatException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				String[] tokens = qstr.split(TAG_DELIM);
+				System.err.println(tokens.length + " tokens len");
+				if(tokens.length == 1){
+					tokens = qstr.split(" ");
 				}
-				return null;
+				System.err.println(tokens.length + " tokens len");
+				return tokens;
 			}
 		}
 	}
