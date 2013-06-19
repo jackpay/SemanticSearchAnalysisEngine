@@ -1,33 +1,19 @@
 package ac.uk.susx.tag.query;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.regex.Pattern;
-
-import opennlp.tools.tokenize.Tokenizer;
-import opennlp.tools.tokenize.TokenizerME;
-import opennlp.tools.tokenize.TokenizerModel;
-import opennlp.tools.util.InvalidFormatException;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.FilteredQuery;
-import org.apache.lucene.search.NumericRangeFilter;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.WildcardQuery;
-import org.apache.lucene.search.payloads.PayloadTermQuery;
 import org.apache.lucene.search.spans.SpanMultiTermQueryWrapper;
-import org.apache.lucene.search.spans.SpanNearPayloadCheckQuery;
+import org.apache.lucene.search.spans.SpanNearQuery;
 import org.apache.lucene.search.spans.SpanPayloadCheckQuery;
 import org.apache.lucene.search.spans.SpanQuery;
 import org.apache.lucene.search.spans.SpanTermQuery;
 import org.apache.lucene.util.BytesRef;
-import org.apache.solr.common.params.CommonParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.request.SolrQueryRequest;
@@ -35,7 +21,6 @@ import org.apache.solr.search.LuceneQParserPlugin;
 import org.apache.solr.search.QParser;
 import org.apache.solr.search.QParserPlugin;
 import org.apache.solr.search.QueryParsing;
-import org.apache.solr.search.SolrQueryParser;
 import org.apache.solr.search.SyntaxError;
 import org.apache.uima.cas.CAS;
 
@@ -80,42 +65,54 @@ public class SemanticQParserPlugin extends QParserPlugin {
 
 		    SemanticQueryAnalyser sqa = new SemanticQueryAnalyser();
 		    if(sqa.isSemanticQuery()) {
-		    	System.err.println("IsSemantic!");
 		    	BytesRef tag = sqa.getPayload();
 	    		ArrayList<byte[]> payload = new ArrayList<byte[]>();
 	    		payload.add(tag.bytes);
 		    	System.err.println(getParam(QueryParsing.V));
 		    	
+		    	//TODO: Add SpanPayloadCheckQueries here! 
 		    	if(!sqa.isProximityQuery()) {
 		    		if(sqa.isChunkandPoS()) {
-		    			System.err.println("Boolean Query");
-		    			SemanticPayloadTermQuery posQuery = new SemanticPayloadTermQuery(new Term(sqa.getPoSField(), getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), false, sqa.getPoSTagPayload());
-		    			SemanticPayloadTermQuery chunkQuery = new SemanticPayloadTermQuery(new Term(sqa.getChunkField(), getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), false, sqa.getChunkPayload());
+		    			ArrayList<byte[]> posBytes = new ArrayList<byte[]>();
+		    			posBytes.add(sqa.getPoSTagPayload().bytes);
+		    			ArrayList<byte[]> chunkBytes = new ArrayList<byte[]>();
+		    			chunkBytes.add(sqa.getChunkPayload().bytes);
+		    			SpanQuery posQuery = new SpanPayloadCheckQuery(new SpanTermQuery(new Term(sqa.getPoSField(), getParam(QueryParsing.V))), posBytes);
+		    			SpanQuery chunkQuery = new SpanPayloadCheckQuery(new SpanTermQuery(new Term(sqa.getChunkField(), getParam(QueryParsing.V))), chunkBytes);
 		    			BooleanQuery boolQuery = new BooleanQuery();
 		    			boolQuery.add(chunkQuery, BooleanClause.Occur.MUST);
 		    			boolQuery.add(posQuery, BooleanClause.Occur.MUST);
 		    			return boolQuery;
 		    		}
-		    		Filter f = NumericRangeFilter.newFloatRange("score", 0.00f, null, true, true);
-
-		    		System.err.println(payload.size() + "-size");
-		    		System.err.println(tag.length);
-		    		System.err.println(tag.bytes.length);
-		    		System.err.println(tag);
-		    		System.err.println(new BytesRef(payload.get(0)));
 		    		return new SpanPayloadCheckQuery(new SpanTermQuery(new Term(defaultField, getParam(QueryParsing.V))),payload);
-		    		//return new SpanPayloadCheckQuery(new SemanticPayloadTermQuery(new Term(defaultField, getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), false, tag),payload);
 		    	}
 		    	else{
+		    		if(sqa.isChunkandPoS()){
+			    		try {
+			    			SpanQuery posSpan = new SpanNearQuery(sqa.getSpanQueries(sqa.getPoSType(), sqa.getPoSField()), sqa.getDistance(), true, true);
+			    			SpanQuery chunkSpan = new SpanNearQuery(sqa.getSpanQueries(sqa.getChunkType(), sqa.getChunkField()), sqa.getDistance(), true, true);
+			    			BooleanQuery boolQuery = new BooleanQuery();
+			    			boolQuery.add(posSpan, BooleanClause.Occur.MUST);
+			    			boolQuery.add(chunkSpan, BooleanClause.Occur.MUST);
+			    			return boolQuery;
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+		    		}
+		    		if(getParam(sqa.getPoSType()) != null){
+		    			try {
+							return new SpanNearQuery(sqa.getSpanQueries(sqa.getPoSType(), sqa.getPoSField()), sqa.getDistance(), true, true);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+		    		}
 		    		try {
-						return new SpanNearPayloadCheckQuery(new SemanticPayloadNearSpanQuery(sqa.getSpans() , sqa.getDistance(), false, tag, defaultField), payload);
+						return new SpanNearQuery(sqa.getSpanQueries(sqa.getChunkType(), sqa.getChunkField()), sqa.getDistance(), true, true);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 		    	}
 		    }
-		    System.err.println("IsNotSemantic!");
 			return new LuceneQParserPlugin().createParser(qstr, localParams, params, req).parse();
 		}
 		
@@ -127,13 +124,14 @@ public class SemanticQParserPlugin extends QParserPlugin {
 			private static final String CHUNK_FIELD = "chunktoken";
 			private static final String CHUNK = "chunktype";
 			private static final String DIST = "tdist";
-			private static final String IN_CHUNK = "inck";
+			//private static final String IN_CHUNK = "inck"; // Was going to be used as a boolean to specify whether matched terms must be in the same chunk as one another.
 			
-			// Used to chain a number of tags (1 per search token) TODO: Add functionality to enable this.
-			private final String TAG_DELIM = "\\+";
+			// Used to chain a number of tags or tokens
+			private static final String TAG_DELIM = "\\+";
+			private static final String TOK_DELIM = "\\+";
 			
-			
-			public SemanticQueryAnalyser() { }
+			// String for wildcards in tag matching
+			private static final String TAG_WILDCARD = "*";
 			
 			public BytesRef getPayload() {
 				if(getParam(CHUNK) != null){
@@ -143,7 +141,6 @@ public class SemanticQParserPlugin extends QParserPlugin {
 			}
 
 			public boolean isSemanticQuery() {
-				System.out.println(getParam(POSTAG) != null);
 				if(getParam(POSTAG) != null){
 					defaultField = POSTAG_FIELD;
 				}
@@ -157,10 +154,6 @@ public class SemanticQParserPlugin extends QParserPlugin {
 			
 			public boolean isProximityQuery() {
 				return tokenise().length > 1;
-			}
-			
-			public boolean isInChunk() {
-				return getParam(IN_CHUNK) != null;
 			}
 			
 			public boolean isChunkandPoS() {
@@ -180,32 +173,38 @@ public class SemanticQParserPlugin extends QParserPlugin {
 				return Integer.MAX_VALUE;
 			}
 			
-			public String[] getTags() {
-				if(getParam(POSTAG) != null) {
-					return getParam(POSTAG).split(TAG_DELIM);
+			public String[] getTags(String type) {
+				if(getParam(type) != null){
+					return getParam(type).split(TAG_DELIM);
 				}
-				return getParam(CHUNK).split(TAG_DELIM);
+				return null;
 			}
 			
-			public SpanQuery[] getSpans() throws IOException {
+			public SpanQuery[] getSpanQueries(String type, String field) throws IOException {
 				String[] tokens = tokenise();
-				
-				String[] tags = getTags();
-				if(tags.length != tokens.length && tags.length != 1) {
+				String[] tags = getTags(type);
+
+				if((tags != null && (tags.length != tokens.length && tags.length != 1))) {
 					throw new IOException("Number of tags must be singular or equal to the number of search terms");
 				}
-				
 				SpanQuery[] terms = new SpanQuery[tokens.length];
 				for(int i = 0; i < terms.length; i++) {
-					System.err.println(terms[i]);
 					if(tokens[i].equals("*") || tokens[i].contains("?") || tokens[i].contains("*")){
-						WildcardQuery wildcard = new WildcardQuery(new Term(defaultField, tokens[i]));
+						WildcardQuery wildcard = new WildcardQuery(new Term(field, tokens[i]));
 						SpanQuery sq = new SpanMultiTermQueryWrapper<WildcardQuery>(wildcard);
 						terms[i] = sq;
 					}
 					else{
 						String tag = (tags.length > 1) ? tags[i] : tags[0];
-						terms[i] = new SemanticPayloadTermQuery(new Term(defaultField, tokens[i]), new SemanticPayloadTermFunction(), true, new BytesRef(tag.getBytes()));
+						if(tag.equals(TAG_WILDCARD)){
+							terms[i] = new SpanTermQuery(new Term(field, tokens[i]));
+						}
+						else{
+							byte[] tagBytes = tag.getBytes();
+							ArrayList<byte[]> payload = new ArrayList<byte[]>();
+				    		payload.add(tagBytes);
+							terms[i] = new SpanPayloadCheckQuery(new SpanTermQuery(new Term(field, tokens[i])), payload);
+						}
 					}
 				}
 				return terms;
@@ -215,21 +214,10 @@ public class SemanticQParserPlugin extends QParserPlugin {
 				return new BytesRef(getParam(POSTAG).getBytes());
 			}
 			
-			public byte[] optimiseBytes(byte[] b){
-
-				boolean found = false;
-				int i = 0;
-				while(!found){
-					System.err.println(i + " " + b[i]);
-					found = b[i] == (byte) 0 ? true : false;
-					i++;
-				}
-				return Arrays.copyOfRange(b, 0, i-1);
-			}
-			
 			public BytesRef getChunkPayload() {
 				return new BytesRef(getParam(CHUNK).getBytes());
 			}
+			
 			
 			public String getPoSField() {
 				return POSTAG_FIELD;
@@ -239,14 +227,20 @@ public class SemanticQParserPlugin extends QParserPlugin {
 				return CHUNK_FIELD;
 			}
 			
+			public String getPoSType(){
+				return POSTAG;
+			}
+			
+			public String getChunkType(){
+				return CHUNK;
+			}
+			
 			public String[] tokenise() {
 				String qstr = getParam(QueryParsing.V);
-				String[] tokens = qstr.split(TAG_DELIM);
-				System.err.println(tokens.length + " tokens len");
+				String[] tokens = qstr.split(TOK_DELIM);
 				if(tokens.length == 1){
 					tokens = qstr.split(" ");
 				}
-				System.err.println(tokens.length + " tokens len");
 				return tokens;
 			}
 		}
