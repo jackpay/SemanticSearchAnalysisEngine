@@ -22,11 +22,6 @@ import org.apache.solr.search.QParser;
 import org.apache.solr.search.QParserPlugin;
 import org.apache.solr.search.QueryParsing;
 import org.apache.solr.search.SyntaxError;
-import org.apache.uima.cas.CAS;
-
-import ac.uk.susx.tag.query.payload.SemanticPayloadNearSpanQuery;
-import ac.uk.susx.tag.query.payload.SemanticPayloadTermFunction;
-import ac.uk.susx.tag.query.payload.SemanticPayloadTermQuery;
 
 /**
  * @author jackpay

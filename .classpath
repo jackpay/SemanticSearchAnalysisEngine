@@ -13,5 +13,14 @@
 	<classpathentry kind="lib" path="lib/uima-core.jar"/>
 	<classpathentry kind="lib" path="lib/solr-solrj-4.1-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-core-4.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="/Users/jp242/.m2/repository/org/apache/lucene/lucene-highlighter/4.1.0/lucene-highlighter-4.1.0.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="maven.groupId" value="org.apache.lucene"/>
+			<attribute name="maven.artifactId" value="lucene-highlighter"/>
+			<attribute name="maven.version" value="4.1.0"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
