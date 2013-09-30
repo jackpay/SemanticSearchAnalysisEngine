@@ -30,6 +30,7 @@ public class SemanticFormatter implements Formatter {
 
 	@Override
 	public String highlightTerm(String originalText, TokenGroup tokenGroup) {
+		
 	    if (tokenGroup.getTotalScore() <= 0) {
 	        return originalText;
 	    }
@@ -43,6 +44,7 @@ public class SemanticFormatter implements Formatter {
 	    	System.err.println(token.getBytesRef());
 	    	System.err.println(originalText);
 	    	out = pre + SPACE_DELIM + POS_TAG + ATT_DELIM + token.getPayload() + END + originalText + post;
+	    	System.err.println(out);
 	    }
 		return out;
 	}
