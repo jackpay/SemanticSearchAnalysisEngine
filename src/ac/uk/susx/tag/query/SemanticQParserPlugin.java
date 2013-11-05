@@ -2,11 +2,13 @@ package ac.uk.susx.tag.query;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.spans.SpanMultiTermQueryWrapper;
 import org.apache.lucene.search.spans.SpanNearQuery;
@@ -17,6 +19,7 @@ import org.apache.lucene.util.BytesRef;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.request.SolrQueryRequest;
+import org.apache.solr.schema.SchemaField;
 import org.apache.solr.search.LuceneQParserPlugin;
 import org.apache.solr.search.QParser;
 import org.apache.solr.search.QParserPlugin;
@@ -63,9 +66,7 @@ public class SemanticQParserPlugin extends QParserPlugin {
 		    	BytesRef tag = sqa.getPayload();
 	    		ArrayList<byte[]> payload = new ArrayList<byte[]>();
 	    		payload.add(tag.bytes);
-		    	System.err.println(getParam(QueryParsing.V));
 		    	
-		    	//TODO: Add SpanPayloadCheckQueries here! 
 		    	if(!sqa.isProximityQuery()) {
 		    		if(sqa.isChunkandPoS()) {
 		    			ArrayList<byte[]> posBytes = new ArrayList<byte[]>();
@@ -77,9 +78,9 @@ public class SemanticQParserPlugin extends QParserPlugin {
 		    			BooleanQuery boolQuery = new BooleanQuery();
 		    			boolQuery.add(chunkQuery, BooleanClause.Occur.MUST);
 		    			boolQuery.add(posQuery, BooleanClause.Occur.MUST);
-		    			return boolQuery;
+		    			return sqa.addFieldQuery(boolQuery);
 		    		}
-		    		return new SpanPayloadCheckQuery(new SpanTermQuery(new Term(defaultField, getParam(QueryParsing.V))),payload);
+		    		return sqa.addFieldQuery(new SpanPayloadCheckQuery(new SpanTermQuery(new Term(defaultField, getParam(QueryParsing.V))),payload));
 		    	}
 		    	else{
 		    		if(sqa.isChunkandPoS()){
@@ -89,20 +90,20 @@ public class SemanticQParserPlugin extends QParserPlugin {
 			    			BooleanQuery boolQuery = new BooleanQuery();
 			    			boolQuery.add(posSpan, BooleanClause.Occur.MUST);
 			    			boolQuery.add(chunkSpan, BooleanClause.Occur.MUST);
-			    			return boolQuery;
+			    			return sqa.addFieldQuery(boolQuery);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
 		    		}
 		    		if(getParam(sqa.getPoSType()) != null){
 		    			try {
-							return new SpanNearQuery(sqa.getSpanQueries(sqa.getPoSType(), sqa.getPoSField()), sqa.getDistance(), true, true);
+							return sqa.addFieldQuery(new SpanNearQuery(sqa.getSpanQueries(sqa.getPoSType(), sqa.getPoSField()), sqa.getDistance(), true, true));
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
 		    		}
 		    		try {
-						return new SpanNearQuery(sqa.getSpanQueries(sqa.getChunkType(), sqa.getChunkField()), sqa.getDistance(), true, true);
+						return sqa.addFieldQuery(new SpanNearQuery(sqa.getSpanQueries(sqa.getChunkType(), sqa.getChunkField()), sqa.getDistance(), true, true));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -237,6 +238,24 @@ public class SemanticQParserPlugin extends QParserPlugin {
 					tokens = qstr.split(" ");
 				}
 				return tokens;
+			}
+			
+			public BooleanQuery addFieldQuery(Query query){
+				Map<String,SchemaField> fields = req.getSchema().getFields();
+				BooleanQuery boolQuery = new BooleanQuery();
+				for(String fieldName : fields.keySet()){
+					String value = getParam(fieldName);
+					if(value != null && !value.equals(CHUNK_FIELD) && !value.equals(POSTAG_FIELD)){
+						String qstr = fieldName + ":" + value;
+						try {
+							boolQuery.add(new LuceneQParserPlugin().createParser(qstr, localParams, params, req).parse(), BooleanClause.Occur.MUST);
+						} catch (SyntaxError e) {
+							e.printStackTrace();
+						}
+					}
+				}
+				boolQuery.add(query, BooleanClause.Occur.MUST);
+				return boolQuery;
 			}
 		}
 	}

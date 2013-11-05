@@ -11,8 +11,10 @@ public class SemanticPayloadTermFunction extends PayloadFunction {
 
 	  @Override
 	  public float docScore(int docId, String field, int numPayloadsSeen, float payloadScore) {
-		  System.err.println(payloadScore + "-payloadScore");
-	    return payloadScore;
+		if(numPayloadsSeen == 0 || payloadScore ==0){
+			return 0;
+		}
+	    return numPayloadsSeen/payloadScore;
 	  }
 
 	  @Override
