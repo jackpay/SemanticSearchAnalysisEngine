@@ -16,17 +16,14 @@ public class SemanticPayloadTermQuery extends PayloadTermQuery {
 	public SemanticPayloadTermQuery(Term term, PayloadFunction function, boolean includeSpanScore,BytesRef compTag) {
 		super(term, function, includeSpanScore);
 		this.compTag = compTag;
-		System.err.println(compTag.toString() + " - compTag");
 	}
 	
 	  @Override
 	  public Weight createWeight(IndexSearcher searcher) throws IOException {
-		  if(searcher.getSimilarity().getClass() == SemanticPayloadTermSimilarity.class){
+		  if(searcher.getSimilarity() instanceof SemanticPayloadTermSimilarity){
 			  SemanticPayloadTermSimilarity ss = (SemanticPayloadTermSimilarity) searcher.getSimilarity();
 			  ss.setCompPayload(compTag);
-			  System.err.println("compTag-SET");
 		  }
-		  System.out.println("Is not semantic similarity");
 		  return new PayloadTermWeight(this, searcher);
 	  }
 	  

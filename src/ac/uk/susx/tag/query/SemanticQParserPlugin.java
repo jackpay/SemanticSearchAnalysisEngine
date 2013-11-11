@@ -8,7 +8,6 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.spans.SpanMultiTermQueryWrapper;
 import org.apache.lucene.search.spans.SpanNearQuery;
@@ -25,6 +24,9 @@ import org.apache.solr.search.QParser;
 import org.apache.solr.search.QParserPlugin;
 import org.apache.solr.search.QueryParsing;
 import org.apache.solr.search.SyntaxError;
+
+import ac.uk.susx.tag.query.payload.SemanticPayloadTermFunction;
+import ac.uk.susx.tag.query.payload.SemanticPayloadTermQuery;
 
 /**
  * @author jackpay
@@ -73,14 +75,15 @@ public class SemanticQParserPlugin extends QParserPlugin {
 		    			posBytes.add(sqa.getPoSTagPayload().bytes);
 		    			ArrayList<byte[]> chunkBytes = new ArrayList<byte[]>();
 		    			chunkBytes.add(sqa.getChunkPayload().bytes);
-		    			SpanQuery posQuery = new SpanPayloadCheckQuery(new SpanTermQuery(new Term(sqa.getPoSField(), getParam(QueryParsing.V))), posBytes);
-		    			SpanQuery chunkQuery = new SpanPayloadCheckQuery(new SpanTermQuery(new Term(sqa.getChunkField(), getParam(QueryParsing.V))), chunkBytes);
+		    			Query posQuery = sqa.isWildcardTag(getParam(sqa.getPoSType())) ? sqa.getWildcardTagQueries(sqa.getPoSField(), getParam(sqa.getPoSType()), getParam(QueryParsing.V)) : sqa.isBoostField(sqa.getPoSField()) ? new SemanticPayloadTermQuery(new Term(sqa.getPoSField(), getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), true, sqa.getPoSTagPayload()) : new SpanPayloadCheckQuery(new SpanTermQuery(new Term(sqa.getPoSField(), getParam(QueryParsing.V))), posBytes);
+		    			Query chunkQuery = sqa.isWildcardTag(getParam(sqa.getChunkType())) ? sqa.getWildcardTagQueries(sqa.getChunkField(), getParam(sqa.getChunkType()), getParam(QueryParsing.V)) : sqa.isBoostField(sqa.getChunkField()) ? new SemanticPayloadTermQuery(new Term(sqa.getChunkField(), getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), true, sqa.getChunkPayload()) : new SpanPayloadCheckQuery(new SpanTermQuery(new Term(sqa.getChunkField(), getParam(QueryParsing.V))), chunkBytes);
 		    			BooleanQuery boolQuery = new BooleanQuery();
 		    			boolQuery.add(chunkQuery, BooleanClause.Occur.MUST);
 		    			boolQuery.add(posQuery, BooleanClause.Occur.MUST);
 		    			return sqa.addFieldQuery(boolQuery);
 		    		}
-		    		return sqa.addFieldQuery(new SpanPayloadCheckQuery(new SpanTermQuery(new Term(defaultField, getParam(QueryParsing.V))),payload));
+		    		Query query = sqa.isWildcardTag(sqa.getPayload().utf8ToString()) ? sqa.getWildcardTagQueries(defaultField, sqa.getPayload().utf8ToString(), getParam(QueryParsing.V)) : sqa.isBoostField(defaultField) ? new SemanticPayloadTermQuery(new Term(defaultField, getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), true, sqa.getPayload()) : new SpanPayloadCheckQuery(new SpanTermQuery(new Term(defaultField, getParam(QueryParsing.V))), payload);
+		    		return sqa.addFieldQuery(query);
 		    	}
 		    	else{
 		    		if(sqa.isChunkandPoS()){
@@ -120,6 +123,7 @@ public class SemanticQParserPlugin extends QParserPlugin {
 			private static final String CHUNK_FIELD = "chunktoken";
 			private static final String CHUNK = "chunktype";
 			private static final String DIST = "tdist";
+			private static final String BOOST_FIELD = "sbf";
 			//private static final String IN_CHUNK = "inck"; // Was going to be used as a boolean to specify whether matched terms must be in the same chunk as one another.
 			
 			// Used to chain a number of tags or tokens
@@ -156,6 +160,14 @@ public class SemanticQParserPlugin extends QParserPlugin {
 				return (getParam(POSTAG) != null && getParam(CHUNK) != null);
 			}
 			
+			public boolean isWildcardTag(String payload) {
+				return payload.contains("*");
+			}
+			
+			public Query getWildcardTagQueries(String field, String tag, String term) {
+				return WildcardTagQueryFactory.getQuery(tag, field, term, isBoostField(field));
+			}
+			
 			public int getDistance() {
 				if(getParam(DIST) != null) {
 					try{
@@ -183,27 +195,33 @@ public class SemanticQParserPlugin extends QParserPlugin {
 				if((tags != null && (tags.length != tokens.length && tags.length != 1))) {
 					throw new IOException("Number of tags must be singular or equal to the number of search terms");
 				}
-				SpanQuery[] terms = new SpanQuery[tokens.length];
-				for(int i = 0; i < terms.length; i++) {
+				ArrayList<SpanQuery> terms = new ArrayList<SpanQuery>();
+				//SpanQuery[] terms = new SpanQuery[tokens.length];
+				for(int i = 0; i < terms.size(); i++) {
 					if(tokens[i].equals("*") || tokens[i].contains("?") || tokens[i].contains("*")){
 						WildcardQuery wildcard = new WildcardQuery(new Term(field, tokens[i]));
 						SpanQuery sq = new SpanMultiTermQueryWrapper<WildcardQuery>(wildcard);
-						terms[i] = sq;
+						terms.add(sq);
 					}
 					else{
 						String tag = (tags.length > 1) ? tags[i] : tags[0];
 						if(tag.equals(TAG_WILDCARD)){
-							terms[i] = new SpanTermQuery(new Term(field, tokens[i]));
+							terms.add(new SpanTermQuery(new Term(field, tokens[i])));
 						}
 						else{
 							byte[] tagBytes = tag.getBytes();
+							BytesRef bPayload = new BytesRef(tagBytes);
 							ArrayList<byte[]> payload = new ArrayList<byte[]>();
-				    		payload.add(tagBytes);
-							terms[i] = new SpanPayloadCheckQuery(new SpanTermQuery(new Term(field, tokens[i])), payload);
+				    		if(!isWildcardTag(tag)){
+								terms.add(isBoostField(field) ? new SemanticPayloadTermQuery(new Term(field, tokens[i]), new SemanticPayloadTermFunction(),true, bPayload) : new SpanPayloadCheckQuery(new SpanTermQuery(new Term(field, tokens[i])), payload));
+				    		}
+				    		else{
+				    			terms.addAll(getWildcardTagQueries(defaultField, getPayload().utf8ToString(), getParam(QueryParsing.V)))
+				    		}
 						}
 					}
 				}
-				return terms;
+				return terms.toArray(new SpanQuery[terms.size()]);
 			}
 			
 			public BytesRef getPoSTagPayload() {
@@ -238,6 +256,13 @@ public class SemanticQParserPlugin extends QParserPlugin {
 					tokens = qstr.split(" ");
 				}
 				return tokens;
+			}
+			
+			public boolean isBoostField(String field){
+				if(getParam(BOOST_FIELD) == null){
+					return false;
+				}
+				return getParam(BOOST_FIELD).equals(field);
 			}
 			
 			public BooleanQuery addFieldQuery(Query query){
