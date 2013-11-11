@@ -68,21 +68,21 @@ public class SemanticQParserPlugin extends QParserPlugin {
 		    	BytesRef tag = sqa.getPayload();
 	    		ArrayList<byte[]> payload = new ArrayList<byte[]>();
 	    		payload.add(tag.bytes);
-		    	
 		    	if(!sqa.isProximityQuery()) {
 		    		if(sqa.isChunkandPoS()) {
 		    			ArrayList<byte[]> posBytes = new ArrayList<byte[]>();
 		    			posBytes.add(sqa.getPoSTagPayload().bytes);
 		    			ArrayList<byte[]> chunkBytes = new ArrayList<byte[]>();
 		    			chunkBytes.add(sqa.getChunkPayload().bytes);
-		    			Query posQuery = sqa.isWildcardTag(getParam(sqa.getPoSType())) ? sqa.getWildcardTagQueries(sqa.getPoSField(), getParam(sqa.getPoSType()), getParam(QueryParsing.V)) : sqa.isBoostField(sqa.getPoSField()) ? new SemanticPayloadTermQuery(new Term(sqa.getPoSField(), getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), true, sqa.getPoSTagPayload()) : new SpanPayloadCheckQuery(new SpanTermQuery(new Term(sqa.getPoSField(), getParam(QueryParsing.V))), posBytes);
-		    			Query chunkQuery = sqa.isWildcardTag(getParam(sqa.getChunkType())) ? sqa.getWildcardTagQueries(sqa.getChunkField(), getParam(sqa.getChunkType()), getParam(QueryParsing.V)) : sqa.isBoostField(sqa.getChunkField()) ? new SemanticPayloadTermQuery(new Term(sqa.getChunkField(), getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), true, sqa.getChunkPayload()) : new SpanPayloadCheckQuery(new SpanTermQuery(new Term(sqa.getChunkField(), getParam(QueryParsing.V))), chunkBytes);
+		    			
+		    			Query posQuery = sqa.isWildcardTag(getParam(sqa.getPoSType())) ? WildcardTagQueryFactory.createBooleanQuery(sqa.getWildcardTagQueries(sqa.getPoSField(), getParam(sqa.getPoSType()), getParam(QueryParsing.V))) : sqa.isBoostField(sqa.getPoSField()) ? new SemanticPayloadTermQuery(new Term(sqa.getPoSField(), getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), true, sqa.getPoSTagPayload()) : new SpanPayloadCheckQuery(new SpanTermQuery(new Term(sqa.getPoSField(), getParam(QueryParsing.V))), posBytes);
+		    			Query chunkQuery = sqa.isWildcardTag(getParam(sqa.getChunkType())) ? WildcardTagQueryFactory.createBooleanQuery(sqa.getWildcardTagQueries(sqa.getChunkField(), getParam(sqa.getChunkType()), getParam(QueryParsing.V))) : sqa.isBoostField(sqa.getChunkField()) ? new SemanticPayloadTermQuery(new Term(sqa.getChunkField(), getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), true, sqa.getChunkPayload()) : new SpanPayloadCheckQuery(new SpanTermQuery(new Term(sqa.getChunkField(), getParam(QueryParsing.V))), chunkBytes);
 		    			BooleanQuery boolQuery = new BooleanQuery();
 		    			boolQuery.add(chunkQuery, BooleanClause.Occur.MUST);
 		    			boolQuery.add(posQuery, BooleanClause.Occur.MUST);
 		    			return sqa.addFieldQuery(boolQuery);
 		    		}
-		    		Query query = sqa.isWildcardTag(sqa.getPayload().utf8ToString()) ? sqa.getWildcardTagQueries(defaultField, sqa.getPayload().utf8ToString(), getParam(QueryParsing.V)) : sqa.isBoostField(defaultField) ? new SemanticPayloadTermQuery(new Term(defaultField, getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), true, sqa.getPayload()) : new SpanPayloadCheckQuery(new SpanTermQuery(new Term(defaultField, getParam(QueryParsing.V))), payload);
+		    		Query query = sqa.isWildcardTag(sqa.getPayload().utf8ToString()) ? WildcardTagQueryFactory.createBooleanQuery(sqa.getWildcardTagQueries(defaultField, sqa.getPayload().utf8ToString(), getParam(QueryParsing.V))) : sqa.isBoostField(defaultField) ? new SemanticPayloadTermQuery(new Term(defaultField, getParam(QueryParsing.V)), new SemanticPayloadTermFunction(), true, sqa.getPayload()) : new SpanPayloadCheckQuery(new SpanTermQuery(new Term(defaultField, getParam(QueryParsing.V))), payload);
 		    		return sqa.addFieldQuery(query);
 		    	}
 		    	else{
@@ -161,10 +161,10 @@ public class SemanticQParserPlugin extends QParserPlugin {
 			}
 			
 			public boolean isWildcardTag(String payload) {
-				return payload.contains("*");
+				return (payload.contains("*") && payload.length() > 1);
 			}
 			
-			public Query getWildcardTagQueries(String field, String tag, String term) {
+			public ArrayList<SpanQuery> getWildcardTagQueries(String field, String tag, String term) {
 				return WildcardTagQueryFactory.getQuery(tag, field, term, isBoostField(field));
 			}
 			
@@ -197,7 +197,7 @@ public class SemanticQParserPlugin extends QParserPlugin {
 				}
 				ArrayList<SpanQuery> terms = new ArrayList<SpanQuery>();
 				//SpanQuery[] terms = new SpanQuery[tokens.length];
-				for(int i = 0; i < terms.size(); i++) {
+				for(int i = 0; i < tokens.length; i++) {
 					if(tokens[i].equals("*") || tokens[i].contains("?") || tokens[i].contains("*")){
 						WildcardQuery wildcard = new WildcardQuery(new Term(field, tokens[i]));
 						SpanQuery sq = new SpanMultiTermQueryWrapper<WildcardQuery>(wildcard);
@@ -216,7 +216,7 @@ public class SemanticQParserPlugin extends QParserPlugin {
 								terms.add(isBoostField(field) ? new SemanticPayloadTermQuery(new Term(field, tokens[i]), new SemanticPayloadTermFunction(),true, bPayload) : new SpanPayloadCheckQuery(new SpanTermQuery(new Term(field, tokens[i])), payload));
 				    		}
 				    		else{
-				    			terms.addAll(getWildcardTagQueries(defaultField, getPayload().utf8ToString(), getParam(QueryParsing.V)))
+				    			terms.addAll(getWildcardTagQueries(defaultField, getPayload().utf8ToString(), getParam(QueryParsing.V)));
 				    		}
 						}
 					}

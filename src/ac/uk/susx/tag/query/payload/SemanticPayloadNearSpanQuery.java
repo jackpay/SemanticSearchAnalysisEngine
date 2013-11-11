@@ -24,7 +24,7 @@ public class SemanticPayloadNearSpanQuery extends PayloadNearQuery {
 	  public Weight createWeight(IndexSearcher searcher) throws IOException {
 		  if(searcher.getSimilarity().getClass() == SemanticPayloadTermSimilarity.class){
 			  SemanticPayloadTermSimilarity ss = (SemanticPayloadTermSimilarity) searcher.getSimilarity();
-			  ss.setCompPayload(compTag);
+			  ss.addCompPayload(compTag);
 		  }
 	    return new PayloadNearSpanWeight(this, searcher);
 	  }

@@ -22,7 +22,7 @@ public class SemanticPayloadTermQuery extends PayloadTermQuery {
 	  public Weight createWeight(IndexSearcher searcher) throws IOException {
 		  if(searcher.getSimilarity() instanceof SemanticPayloadTermSimilarity){
 			  SemanticPayloadTermSimilarity ss = (SemanticPayloadTermSimilarity) searcher.getSimilarity();
-			  ss.setCompPayload(compTag);
+			  ss.addCompPayload(compTag);
 		  }
 		  return new PayloadTermWeight(this, searcher);
 	  }
