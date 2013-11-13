@@ -37,14 +37,7 @@ public class SemanticFormatter implements Formatter {
 	    String out = null;
 	    for(int i = 0; i < tokenGroup.getNumTokens(); i++){
 	    	Token token = tokenGroup.getToken(i);
-	    	System.err.println(token.getPayload());
-	    	System.err.println(token.getPositionIncrement());
-	    	System.err.println(token.getPositionLength());
-	    	System.err.println(token.getFlags());
-	    	System.err.println(token.getBytesRef());
-	    	System.err.println(originalText);
 	    	out = pre + SPACE_DELIM + POS_TAG + ATT_DELIM + token.getPayload() + END + originalText + post;
-	    	System.err.println(out);
 	    }
 		return out;
 	}

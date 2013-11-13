@@ -88,7 +88,7 @@ public class SemanticQParserPlugin extends QParserPlugin {
 		    	else{
 		    		if(sqa.isChunkandPoS()){
 			    		try {
-			    			SpanQuery posSpan = new SpanNearQuery(sqa.getSpanQueries(sqa.getPoSType(), sqa.getPoSField()), sqa.getDistance(), true, true);
+			    			SpanQuery posSpan = new SpanNearQuery(sqa.getSpanQueries(sqa.getPoSType(), sqa.getPoSField()), sqa.getDistance(), false, true);
 			    			SpanQuery chunkSpan = new SpanNearQuery(sqa.getSpanQueries(sqa.getChunkType(), sqa.getChunkField()), sqa.getDistance(), true, true);
 			    			BooleanQuery boolQuery = new BooleanQuery();
 			    			boolQuery.add(posSpan, BooleanClause.Occur.MUST);
@@ -100,12 +100,22 @@ public class SemanticQParserPlugin extends QParserPlugin {
 		    		}
 		    		if(getParam(sqa.getPoSType()) != null){
 		    			try {
-							return sqa.addFieldQuery(new SpanNearQuery(sqa.getSpanQueries(sqa.getPoSType(), sqa.getPoSField()), sqa.getDistance(), true, true));
+		    				SpanQuery[] queries = sqa.getSpanQueries(sqa.getPoSType(), sqa.getPoSField());
+		    				if(queries.length > sqa.getTags(sqa.getPoSType()).length){
+		    					return sqa.addFieldQuery(sqa.getBooleanSpanNearQueries(queries));
+		    				}
+		    				else{
+								return sqa.addFieldQuery(new SpanNearQuery(sqa.getSpanQueries(sqa.getPoSType(), sqa.getPoSField()), sqa.getDistance(), true, true));
+		    				}
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
 		    		}
 		    		try {
+		    			SpanQuery[] queries = sqa.getSpanQueries(sqa.getChunkType(), sqa.getChunkField());
+		    			if(queries.length > sqa.getTags(sqa.getPoSType()).length){
+		    				return sqa.addFieldQuery(sqa.getBooleanSpanNearQueries(queries));
+		    			}
 						return sqa.addFieldQuery(new SpanNearQuery(sqa.getSpanQueries(sqa.getChunkType(), sqa.getChunkField()), sqa.getDistance(), true, true));
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -168,6 +178,20 @@ public class SemanticQParserPlugin extends QParserPlugin {
 				return WildcardTagQueryFactory.getQuery(tag, field, term, isBoostField(field));
 			}
 			
+			public BooleanQuery getBooleanSpanNearQueries(SpanQuery[] queries) {
+				BooleanQuery boolQuery = new BooleanQuery();
+				boolQuery.setMinimumNumberShouldMatch(1);
+				for(int i = 0; i < queries.length; i++){
+					for(int j = 0; j < queries.length; j++){
+						if(!queries[i].equals(queries[j])){
+							SpanNearQuery spanQ = new SpanNearQuery(new SpanQuery[]{queries[i],queries[j]},getDistance(),true,true);
+							boolQuery.add(spanQ,BooleanClause.Occur.SHOULD);
+						}
+					}
+				}
+				return boolQuery;
+			}
+			
 			public int getDistance() {
 				if(getParam(DIST) != null) {
 					try{
@@ -196,7 +220,6 @@ public class SemanticQParserPlugin extends QParserPlugin {
 					throw new IOException("Number of tags must be singular or equal to the number of search terms");
 				}
 				ArrayList<SpanQuery> terms = new ArrayList<SpanQuery>();
-				//SpanQuery[] terms = new SpanQuery[tokens.length];
 				for(int i = 0; i < tokens.length; i++) {
 					if(tokens[i].equals("*") || tokens[i].contains("?") || tokens[i].contains("*")){
 						WildcardQuery wildcard = new WildcardQuery(new Term(field, tokens[i]));
@@ -212,11 +235,13 @@ public class SemanticQParserPlugin extends QParserPlugin {
 							byte[] tagBytes = tag.getBytes();
 							BytesRef bPayload = new BytesRef(tagBytes);
 							ArrayList<byte[]> payload = new ArrayList<byte[]>();
+							payload.add(tagBytes);
 				    		if(!isWildcardTag(tag)){
 								terms.add(isBoostField(field) ? new SemanticPayloadTermQuery(new Term(field, tokens[i]), new SemanticPayloadTermFunction(),true, bPayload) : new SpanPayloadCheckQuery(new SpanTermQuery(new Term(field, tokens[i])), payload));
 				    		}
 				    		else{
-				    			terms.addAll(getWildcardTagQueries(defaultField, getPayload().utf8ToString(), getParam(QueryParsing.V)));
+				    			
+				    			terms.addAll(getWildcardTagQueries(field, tag, tokens[i]));
 				    		}
 						}
 					}

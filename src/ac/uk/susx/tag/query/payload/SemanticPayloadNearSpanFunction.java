@@ -11,7 +11,6 @@ public class SemanticPayloadNearSpanFunction extends PayloadFunction{
 
 	  @Override
 	  public float docScore(int docId, String field, int numPayloadsSeen, float payloadScore) {
-		  System.err.println(payloadScore);
 	    return numPayloadsSeen / payloadScore;
 	  }
 

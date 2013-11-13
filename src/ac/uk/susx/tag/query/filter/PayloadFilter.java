@@ -33,7 +33,6 @@ public class PayloadFilter extends SpanPayloadCheckQuery{
 	    boolean result = spans.isPayloadAvailable();
 	    if (result == true){
 	      Collection<byte[]> candidate = spans.getPayload();
-	      System.err.println(candidate.size() + " canSize " + payloadToMatch.size() + " payloadSize");
 	      if (candidate.size() == payloadToMatch.size()){
 	        //TODO: check the byte arrays are the same
 	        Iterator<byte[]> toMatchIter = payloadToMatch.iterator();
@@ -42,8 +41,6 @@ public class PayloadFilter extends SpanPayloadCheckQuery{
 	        for (byte[] candBytes : candidate) {
 	        	BytesRef br = new BytesRef(candBytes);
 	        	BytesRef pr = new BytesRef(toMatchIter.next());
-	        	System.err.println(new BytesRef(br.bytes) + "candBytes");
-	        	System.err.println(pr + "checkBytes");
 	        	
 	          //if one is a mismatch, then return false
 	          if (Arrays.equals(br.bytes, pr.bytes) == false){
