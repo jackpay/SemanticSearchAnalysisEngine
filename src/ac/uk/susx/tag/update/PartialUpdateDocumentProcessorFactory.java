@@ -2,9 +2,11 @@ package ac.uk.susx.tag.update;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.util.ContentStream;
 import org.apache.solr.request.SolrQueryRequest;
 import org.apache.solr.response.SolrQueryResponse;
 import org.apache.solr.update.AddUpdateCommand;
@@ -35,9 +37,16 @@ public class PartialUpdateDocumentProcessorFactory extends UpdateRequestProcesso
 
 	  @Override
 	  public void processAdd(AddUpdateCommand cmd) throws IOException {
+		  Iterator<ContentStream> iter = cmd.getReq().getContentStreams().iterator();
+		  while(iter.hasNext()){
+			  ContentStream cs = iter.next();
+			  System.out.println("CONTENT STREAM: " + cs.getStream().toString());
+		  }
+		  System.out.println("PARAMS: " + cmd.getReq().getParams());
 		  
 	      SolrInputDocument doc = cmd.getSolrInputDocument();
 	      String id = (String) doc.getFieldValue("id");
+	      
 		  HttpSolrServer solr = new HttpSolrServer(solrURL); // Get the document that requires updating.
 		  
 		  SolrQuery query = new SolrQuery();
