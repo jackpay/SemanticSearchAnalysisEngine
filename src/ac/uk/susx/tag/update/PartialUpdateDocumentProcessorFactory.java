@@ -48,7 +48,6 @@ public class PartialUpdateDocumentProcessorFactory extends UpdateRequestProcesso
 	      String id = (String) doc.getFieldValue("id");
 	      
 		  HttpSolrServer solr = new HttpSolrServer(solrURL); // Get the document that requires updating.
-		  
 		  SolrQuery query = new SolrQuery();
 		  query.setQuery("id:" + "\"" + id + "\"");
 		  query.setStart(0);								// Query the id to return ONLY the one document which requires updating.
