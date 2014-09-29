@@ -79,7 +79,7 @@ public class QuerytoCSV {
 			config.setFields(csvFields);
 			config.setFieldHeader(true);
 			
-			//Create output file name.
+			// Create output file name.
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 			String filename = new StringBuilder().append(outputDir).append("/").append("output.").append(dateFormat.format(Calendar.getInstance().getTime())).append(".csv").toString();
 			

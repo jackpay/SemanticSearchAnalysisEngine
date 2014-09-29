@@ -40,9 +40,7 @@ public class PartialUpdateDocumentProcessorFactory extends UpdateRequestProcesso
 		  Iterator<ContentStream> iter = cmd.getReq().getContentStreams().iterator();
 		  while(iter.hasNext()){
 			  ContentStream cs = iter.next();
-			  System.out.println("CONTENT STREAM: " + cs.getStream().toString());
 		  }
-		  System.out.println("PARAMS: " + cmd.getReq().getParams());
 		  
 	      SolrInputDocument doc = cmd.getSolrInputDocument();
 	      String id = (String) doc.getFieldValue("id");
