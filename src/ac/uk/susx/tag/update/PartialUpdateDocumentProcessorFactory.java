@@ -28,22 +28,31 @@ public class PartialUpdateDocumentProcessorFactory extends UpdateRequestProcesso
   
   public class PartialUpdateDocumentProcessor extends UpdateRequestProcessor {
 	  
-	  public static final String solrURL = "http://localhost:8983/solr";
-	  public final HashSet<String> allowedFields = new HashSet<String>() {}; // Used as a security measure to prevent unwanted changes.
+	  private String solrURL = "http://localhost:8983/solr";
+	  private final HashSet<String> allowedFields = new HashSet<String>() {}; // Used as a security measure to prevent unwanted changes.
+	  private String unique_key = "uuid";
 	  
 	  public PartialUpdateDocumentProcessor( UpdateRequestProcessor next) {
 		  super( next );
 	  }
+	  
+	  public PartialUpdateDocumentProcessor( UpdateRequestProcessor next, String solrUrl, String keyField) {
+		  super( next );
+		  this.unique_key = keyField;
+		  this.solrURL = solrUrl;
+	  }
 
 	  @Override
 	  public void processAdd(AddUpdateCommand cmd) throws IOException {
+		  
 		  Iterator<ContentStream> iter = cmd.getReq().getContentStreams().iterator();
+		  
 		  while(iter.hasNext()){
 			  ContentStream cs = iter.next();
 		  }
 		  
 	      SolrInputDocument doc = cmd.getSolrInputDocument();
-	      String id = (String) doc.getFieldValue("id");
+	      String id = (String) doc.getFieldValue("unique_key");
 	      
 		  HttpSolrServer solr = new HttpSolrServer(solrURL); // Get the document that requires updating.
 		  SolrQuery query = new SolrQuery();
