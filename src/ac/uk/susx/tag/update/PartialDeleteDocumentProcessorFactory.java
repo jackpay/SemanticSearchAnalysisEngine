@@ -45,7 +45,7 @@ public class PartialDeleteDocumentProcessorFactory extends UpdateRequestProcesso
 		    String id = (String) doc.getFieldValue(unique_key);
 		      
 		    SolrInputDocument newDoc = new SolrInputDocument();
-		    newDoc.addField("id", id);
+		    newDoc.addField(unique_key, id);
 			newDoc.addField("url", id);
 			newDoc.addField("deleted", true);
 			
@@ -53,7 +53,7 @@ public class PartialDeleteDocumentProcessorFactory extends UpdateRequestProcesso
 			  try {
 				solr.add(newDoc);
 				solr.commit();
-				SolrQuery query = new SolrQuery("id:\"" + id + "\"").setFields("*");
+				SolrQuery query = new SolrQuery(unique_key + ":\"" + id + "\"").setFields("*");
 				SolrDocumentList sd = solr.query(query).getResults();
 				rsp.add("response", sd);
 				solr.shutdown();

@@ -1,16 +1,16 @@
 package ac.uk.susx.tag.update;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.request.SolrQueryRequest;
 import org.apache.solr.response.SolrQueryResponse;
-import org.apache.solr.search.SolrReturnFields;
 import org.apache.solr.update.AddUpdateCommand;
 import org.apache.solr.update.processor.UpdateRequestProcessor;
 import org.apache.solr.update.processor.UpdateRequestProcessorFactory;
@@ -53,15 +53,19 @@ public class PartialUpdateDocumentProcessorFactory extends UpdateRequestProcesso
 	      String id = (String) doc.getFieldValue(unique_key);
 	      
 	      SolrInputDocument newDoc = new SolrInputDocument();
-	      newDoc.addField("id", id);
+	      newDoc.addField(unique_key, id);
 
 	      for(String field : doc.getFieldNames()) {
-	    	  if(!field.equals("id")) {
+	    	  if(!field.equals(unique_key)) {
 	    		  String val = (String) doc.getFieldValue(field);
 	    		  if(!val.contains("-- Select --") && !val.equals("") && val != null){
 			    	  Map<String,Object> partialupdate = new HashMap<String,Object>();
 			    	  if(field.equals("elec-vot-type-country")){
-			    		  partialupdate.put("add", doc.getFieldValue(field));
+			    		  Date date = new Date();
+			    		  String strDate = new SimpleDateFormat("dd/MM/yyyy").format(date); // Add the date to keep track of when details where added.
+			    		  StringBuilder sb = new StringBuilder();
+			    		  sb.append(doc.getFieldValue(field)).append("_").append(strDate);
+			    		  partialupdate.put("add", sb.toString());
 			    	  }
 			    	  else{
 				    	  partialupdate.put("set", doc.getFieldValue(field));
@@ -75,7 +79,7 @@ public class PartialUpdateDocumentProcessorFactory extends UpdateRequestProcesso
 		  try {
 			solr.add(newDoc);
 			solr.commit();
-			SolrQuery query = new SolrQuery("id:\"" + id + "\"").setFields("*");
+			SolrQuery query = new SolrQuery(unique_key + ":\"" + id + "\"").setFields("*");
 			SolrDocumentList sd = solr.query(query).getResults();
 			rsp.add("response", sd);
 			solr.shutdown();
