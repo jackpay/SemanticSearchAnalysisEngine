@@ -83,9 +83,9 @@ public class PartialUpdateDocumentProcessorFactory extends UpdateRequestProcesso
 			SolrDocumentList sd = solr.query(query).getResults();
 			rsp.add("response", sd);
 			solr.shutdown();
-			rsp.add("updated", "The database has been updated.");
+			rsp.add("global-resp", "The database has been updated.");
 		} catch (SolrServerException e) {
-			rsp.add("updated", "The database update failed!");
+			rsp.add("global-resp", "The database update failed!");
 			e.printStackTrace();
 		}
     }

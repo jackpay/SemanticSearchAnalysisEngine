@@ -57,9 +57,9 @@ public class PartialDeleteDocumentProcessorFactory extends UpdateRequestProcesso
 				SolrDocumentList sd = solr.query(query).getResults();
 				rsp.add("response", sd);
 				solr.shutdown();
-				rsp.add("updated", "The document has been deleted.");
+				rsp.add("global-resp", "The document has been deleted.");
 			} catch (SolrServerException e) {
-				rsp.add("updated", "The document could not be deleted.");
+				rsp.add("global-resp", "The document could not be deleted.");
 				e.printStackTrace();
 			}
 			

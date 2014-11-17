@@ -84,9 +84,9 @@ public class PartialDeleteFieldProcessorFactory extends UpdateRequestProcessorFa
 				SolrDocumentList sdl = solr.query(query).getResults();
 				rsp.add("response", sdl);
 				solr.shutdown();
-				rsp.add("updated", "The database has been updated.");
+				rsp.add("global-resp", "The item was removed from the database.");
 			} catch (SolrServerException e) {
-				rsp.add("updated", "The database update failed!");
+				rsp.add("global-resp", "The database update failed!");
 				e.printStackTrace();
 			}
 			

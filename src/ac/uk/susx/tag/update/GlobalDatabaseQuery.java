@@ -1,6 +1,5 @@
 package ac.uk.susx.tag.update;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,12 +12,9 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.handler.RequestHandlerBase;
 import org.apache.solr.request.SolrQueryRequest;
 import org.apache.solr.response.SolrQueryResponse;
-import org.apache.solr.update.AddUpdateCommand;
-import org.apache.solr.update.processor.UpdateRequestProcessor;
 
 public class GlobalDatabaseQuery extends RequestHandlerBase {
 	
-	private String query = "elec-vot-type-country:*";
 	private String solrURL = "http://localhost:8983/solr";
 	private String unique_key = "id";
 	private String query_field = "elec-vot-type-country";
@@ -63,7 +59,7 @@ public class GlobalDatabaseQuery extends RequestHandlerBase {
 			solr.shutdown();
 			
 		} catch (SolrServerException e) {
-			rsp.add("updated", "The database update failed!");
+			rsp.add("global-resp", "The database update failed!");
 			e.printStackTrace();
 		}
 		
