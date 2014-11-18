@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.handler.RequestHandlerBase;
 import org.apache.solr.request.SolrQueryRequest;
@@ -34,6 +35,14 @@ public class CrawlerHandler extends RequestHandlerBase {
 	public CrawlerHandler(String crawlConfig) {
 		this.crawlConfig = crawlConfig;
 	}
+	
+	public void setParams(SolrParams params) {
+		this.params = params;
+	}
+	
+	public void config(String con) {
+		this.crawlConfig = con;
+	}
 
 	@Override
 	/**
@@ -42,15 +51,15 @@ public class CrawlerHandler extends RequestHandlerBase {
 	public void handleRequestBody(SolrQueryRequest req, SolrQueryResponse resp) throws Exception {
 		
 		es = Executors.newSingleThreadExecutor();
-		params = req.getParams();
+		//params = req.getParams();
 		
-		if(crawlConfig == null) {
-			crawlConfig = req.getParams().get("crawl-config");
-		}
-		
-		if(crawlConfig == null) {
-			throw new PollingServiceException("No configuration file for the polling service was provided.");
-		}
+//		if(crawlConfig == null) {
+//			crawlConfig = req.getParams().get("crawl-config");
+//		}
+//		
+//		if(crawlConfig == null) {
+//			throw new PollingServiceException("No configuration file for the polling service was provided.");
+//		}
 		
 		runner = new Runner();
 		config = runner.configure(crawlConfig);
@@ -82,7 +91,7 @@ public class CrawlerHandler extends RequestHandlerBase {
 			
 		}).start();
 		
-		resp.add("global-resp", "The web crawl has been initialised. If the option was selected, you will be emailed when any new documents are ready for analysis.");
+		//resp.add("global-resp", "The web crawl has been initialised. If the option was selected, you will be emailed when any new documents are ready for analysis.");
 		
 	}
 	
@@ -196,6 +205,24 @@ public class CrawlerHandler extends RequestHandlerBase {
 	@Override
 	public String getDescription() {
 		return "Uses the GlobalStudiesPollingService project to crawl the web, classify the resulting web pages and update the Solr index accordingly.";
+	}
+	
+	public static void main(String[] args) {
+		ModifiableSolrParams sp = new ModifiableSolrParams();
+		sp.add("cleanup-option", "true");
+		sp.add("crawl-option","true");
+		sp.add("meth51-check","true");
+		sp.add("blacklist-check","true");
+		sp.add("email-option","true");
+		CrawlerHandler ch = new CrawlerHandler();
+		ch.setParams(sp);
+		ch.config("conf/globalstudies-config.xml");
+			try {
+				ch.handleRequestBody(null, null);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 
 }

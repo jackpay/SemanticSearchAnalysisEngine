@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE configuration SYSTEM "configuration.dtd">
+<!-- 
+
+##########################################################################################
+##########
+########## Default configuration file to configure the GlobalStudiesPollingService.
+##########
+########## All "Required" fields must be provided.
+##########
+########## author: jackpay date: 20/10/2014
+##########
+##########################################################################################
+
+-->
+<configuration>
+
+	<!-- Used to specify Solr server configuration details -->
+	<solr-config>
+		<!-- Required -->
+		<url>http://localhost:8983/solr</url>
+		<key-field>id</key-field>
+		
+		<!-- Optional: depending on Solr configuration. -->
+		<solr-user></solr-user>
+		<solr-pass></solr-pass>
+		
+	</solr-config>
+
+	<!-- Used to specify MySQL configuration details -->
+	<mysql-config>
+	
+		<!-- Required -->
+		<port>3306</port>
+		<database>solr-method51</database>
+		<mysql-user>jp242</mysql-user>
+		<mysql-pass>BoLlocks6</mysql-pass>
+		<mysql-key-field>url</mysql-key-field>
+		<server>localhost</server>
+		
+	</mysql-config>
+	
+	<!-- Nutch seedlist configurations -->
+	<nutch-seedlist>
+		<new-seeds-loc>/Volumes/LocalDataHD/jp242/Documents/Projects/GlobalStudies/Implementation/nutch-global/runtime/local/bin/seedAdd.txt</new-seeds-loc>
+		<file-loc>/Volumes/LocalDataHD/jp242/Documents/Projects/GlobalStudies/Implementation/nutch-global/runtime/local/bin/seed.txt</file-loc>
+	</nutch-seedlist>
+	
+	<!-- Nutch blacklist configurations -->
+	<nutch-blacklist>
+		<field>url</field>
+		<file-loc>/Volumes/LocalDataHD/jp242/Documents/Projects/GlobalStudies/apache-nutch-1.8/runtime/local/conf/regex-urlfilter.txt</file-loc>
+	</nutch-blacklist>
+	
+	<!-- Used to specify MySQl input tables to sent the Solr search results to. -->
+	<mysql-input-tables>
+		<table>tweets-solrmethod51</table>
+	</mysql-input-tables>
+	
+	<!-- Used to specify a list of MySQL output tables to poll for classification results. -->
+	<!-- TODO: Attribute: significant class tables, i.e. email stats-->
+	<mysql-output-tables>
+		<table>tweets-solrmethod51-relevant</table>
+		<table>tweets-solrmethod51-irrelevant</table>
+	</mysql-output-tables>
+	
+	<!-- Stores corresponding MySQL columns and Solr fields. -->
+	<!-- TODO: Attribute: key field indicator (plus defaults) -->
+	<column-fields>
+		<column-field>
+			<field>id</field>
+			<column>url</column>
+		</column-field>
+		<column-field>
+			<field>content</field>
+			<column>text</column>
+		</column-field>
+	</column-fields>
+	
+	<!-- A list of email recipients to send details of the classification run. -->
+	<recipients>
+		<recipient>
+			<email>jp242@sussex.ac.uk</email>
+		</recipient>
+		<recipient>
+			<email>jackpay84@googlemail.com</email>
+		</recipient>
+	</recipients>
+	
+		<!-- The query field/value pairs used to query Solr for documents to add to the blacklist. -->
+	<nutch-query>
+		<nutch-fv>
+			<field>analyst-relevant</field>
+			<value>false</value>
+		</nutch-fv>
+	</nutch-query>
+	
+	<!-- The query field/value pairs used to query Solr for documents to send to Method51. -->
+	<m51-query>
+		<m51-fv>
+			<field>parsed</field>
+			<value>false</value>
+		</m51-fv>
+		<m51-fv>
+			<field>-sentence</field>
+			<value>null</value>
+		</m51-fv>
+		<m51-fv>
+			<field>lang</field>
+			<value>en</value>
+		</m51-fv>
+	</m51-query>
+	
+	<!-- Used to specify a list of MySQL column names and corresponding Solr field/value pairs.
+		 Used to provide details of field/value pairs updates in solr. 
+		 If this is not expressive enough a FieldValueFactory can be used instead. / -->
+	<mysql-fieldvalues>
+		<field-value>
+			<!-- MySQL table name. -->
+			<fv-table></fv-table>
+			<!-- Solr field. -->
+			<fv-field></fv-field>
+			<!-- Value to update Solr field. -->
+			<fv-value></fv-value>
+		</field-value>
+	</mysql-fieldvalues>
+	
+	<!-- Used to specify the fully qualified classname of a class implementing IFieldValueFactory. -->
+	<fieldvalue-class>ac.uk.susx.tag.fieldvalue.GlobalStudiesFieldValueFactory</fieldvalue-class>
+
+</configuration>
+
