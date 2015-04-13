@@ -97,18 +97,18 @@
 	
 	<!-- The query field/value pairs used to query Solr for documents to send to Method51. -->
 	<m51-query>
-		<m51-fv>
+		<m51-fv-q>
 			<field>parsed</field>
 			<value>false</value>
-		</m51-fv>
-		<m51-fv>
+		</m51-fv-q>
+		<m51-fv-fq>
 			<field>-sentence</field>
 			<value>null</value>
-		</m51-fv>
-		<m51-fv>
+		</m51-fv-fq>
+		<m51-fv-fq>
 			<field>lang</field>
 			<value>en</value>
-		</m51-fv>
+		</m51-fv-fq>
 	</m51-query>
 	
 	<!-- Used to specify a list of MySQL column names and corresponding Solr field/value pairs.

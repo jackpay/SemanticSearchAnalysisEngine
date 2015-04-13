@@ -1,4 +1,4 @@
-<!ELEMENT configuration (solr-config,mysql-config,nutch-seedlist,nutch-blacklist,mysql-input-tables,mysql-output-tables,column-fields,mysql-fieldvalues,fieldvalue-class)>
+<!ELEMENT configuration (solr-config,mysql-config,nutch-seedlist,nutch-blacklist,mysql-input-tables,mysql-output-tables,column-fields,recipients,nutch-query,m51-query,mysql-fieldvalues,fieldvalue-class)>
 <!ELEMENT solr-config (url,key-field,solr-user,solr-pass)>
 <!ELEMENT url (#PCDATA)>
 <!ELEMENT key-field (#PCDATA)>
@@ -26,11 +26,12 @@
 <!ELEMENT recipients (recipient*)>
 <!ELEMENT recipient (email)>
 <!ELEMENT email (#PCDATA)>
-<!ELEMENT nutch-query (nutch-fv*)>
+<!ELEMENT nutch-query (nutch-fv)>
 <!ELEMENT nutch-fv (field,value)>
 <!ELEMENT value (#PCDATA)>
-<!ELEMENT m51-query (m51-fv*)>
-<!ELEMENT m51-fv (field,value)>
+<!ELEMENT m51-query (m51-fv-q,m51-fv-fq*)>
+<!ELEMENT m51-fv-q (field,value)>
+<!ELEMENT m51-fv-fq (field,value)>
 <!ELEMENT mysql-fieldvalues (field-value*)>
 <!ELEMENT field-value (fv-table,fv-field,fv-value)>
 <!ELEMENT fv-table (#PCDATA)>

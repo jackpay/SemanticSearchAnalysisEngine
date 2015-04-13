@@ -15,7 +15,7 @@ import org.apache.solr.response.SolrQueryResponse;
 
 public class GlobalDatabaseQuery extends RequestHandlerBase {
 	
-	private String solrURL = "http://localhost:8983/solr";
+	private String solrURL = "http://localhost:10000/solr";
 	private String unique_key = "id";
 	private String query_field = "elec-vot-type-country";
 	private static final int batch = 200;

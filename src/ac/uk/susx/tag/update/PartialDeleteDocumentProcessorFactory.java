@@ -1,4 +1,4 @@
-package ac.uk.susx.tag.update;
+	package ac.uk.susx.tag.update;
 
 import java.io.IOException;
 
@@ -25,7 +25,7 @@ public class PartialDeleteDocumentProcessorFactory extends UpdateRequestProcesso
 	public class PartialDeleteDocumentProcessor extends UpdateRequestProcessor {
 		
 		private String unique_key = "id";
-		private String solrURL = "http://localhost:8983/solr";
+		private String solrURL = "http://localhost:10000/solr";
 		private SolrQueryResponse rsp;
 
 		public PartialDeleteDocumentProcessor(UpdateRequestProcessor next) {
@@ -55,9 +55,10 @@ public class PartialDeleteDocumentProcessorFactory extends UpdateRequestProcesso
 				solr.commit();
 				SolrQuery query = new SolrQuery(unique_key + ":\"" + id + "\"").setFields("*");
 				SolrDocumentList sd = solr.query(query).getResults();
-				rsp.add("response", sd);
+//				rsp.add("response", sd);
 				solr.shutdown();
 				rsp.add("global-resp", "The document has been deleted.");
+//				rsp.getReturnFields().getLuceneFieldNames().remove("id");
 			} catch (SolrServerException e) {
 				rsp.add("global-resp", "The document could not be deleted.");
 				e.printStackTrace();

@@ -1,7 +1,8 @@
 package ac.uk.susx.tag.crawl;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -23,8 +24,16 @@ import ac.uk.susx.tag.utils.PollingServiceException;
  *
  */
 public class CrawlerHandler extends RequestHandlerBase {
-	
+	// Polling details
 	private String crawlConfig;
+	
+	// Crawling details
+	private String nutchLoc;
+	private static final String COMMAND = "/crawl";
+	private String seed;
+	private String crawldb;
+	private int depth = 1;
+	
 	private ExecutorService es;
 	private SolrParams params;
 	private Configuration config;
@@ -43,6 +52,22 @@ public class CrawlerHandler extends RequestHandlerBase {
 	public void config(String con) {
 		this.crawlConfig = con;
 	}
+	
+	public void nutch(String location) {
+		nutchLoc = location;
+	}
+	
+	public void setDepth(int d) {
+		depth = d;
+	}
+	
+	public void setCrawldb(String db) {
+		crawldb = db;
+	}
+	
+	public void setSeed(String seed) {
+		this.seed = seed;
+	}
 
 	@Override
 	/**
@@ -51,18 +76,49 @@ public class CrawlerHandler extends RequestHandlerBase {
 	public void handleRequestBody(SolrQueryRequest req, SolrQueryResponse resp) throws Exception {
 		
 		es = Executors.newSingleThreadExecutor();
-		//params = req.getParams();
+		params = req.getParams();
 		
-//		if(crawlConfig == null) {
-//			crawlConfig = req.getParams().get("crawl-config");
-//		}
-//		
-//		if(crawlConfig == null) {
-//			throw new PollingServiceException("No configuration file for the polling service was provided.");
-//		}
+		if(crawlConfig == null) {
+			crawlConfig = req.getParams().get("crawl-config");
+		}
 		
-		runner = new Runner();
-		config = runner.configure(crawlConfig);
+		if(crawlConfig == null) {
+			throw new PollingServiceException("No configuration file for the polling service was provided.");
+		}
+		
+		if(nutchLoc == null) {
+			nutchLoc = req.getParams().get("nutch-dir");
+		}
+		
+		if(nutchLoc == null) {
+			throw new PollingServiceException("No configuration file for the polling service was provided.");
+		}
+		
+		if(req.getParams().get("depth") == null) {
+			depth = 3;
+		}
+		
+		if(crawldb == null) {
+			crawldb = req.getParams().get("crawl-db");
+		}
+		
+		if(crawldb == null) {
+			throw new PollingServiceException("No crawl database provided.");
+		}
+		
+		if(seed == null) {
+			seed = req.getParams().get("seed-dir");
+		}
+		
+		if(seed == null) {
+			throw new PollingServiceException("No crawl database provided.");
+		}
+		
+		
+		
+		runner = new Runner(crawlConfig);
+		config = runner.configuration();
+		System.out.println(config.mysqlKeyField());
 		
 		addnewSeedList();		// Add any additional seed urls to the seedlist (if provided by the user).
 		
@@ -91,7 +147,7 @@ public class CrawlerHandler extends RequestHandlerBase {
 			
 		}).start();
 		
-		//resp.add("global-resp", "The web crawl has been initialised. If the option was selected, you will be emailed when any new documents are ready for analysis.");
+		resp.add("global-resp", "The web crawl has been initialised. If the option was selected, you will be emailed when any new documents are ready for analysis.");
 		
 	}
 	
@@ -159,7 +215,18 @@ public class CrawlerHandler extends RequestHandlerBase {
 
 				@Override
 				public Boolean call() throws Exception {
-					// TODO: crawl
+					ProcessBuilder pb = new ProcessBuilder(nutchLoc+COMMAND,seed,crawldb,config.newSolr().getBaseURL(),String.valueOf(depth)); // Build the command line call.
+					pb.redirectErrorStream(true);
+					Process process = pb.start();
+					InputStreamReader isr = new  InputStreamReader(process.getInputStream());
+				    BufferedReader br = new BufferedReader(isr); // Print the output of the Nutch crawler.
+					String lineRead;
+				    while ((lineRead = br.readLine()) != null) {
+				        System.out.println(lineRead);
+				    }
+					int rc = process.waitFor();
+					br.close();
+					isr.close();
 					return true;
 				}
 				
@@ -183,18 +250,11 @@ public class CrawlerHandler extends RequestHandlerBase {
 	}
 
 	/**
-	 * Submits and waits until the job is finished to ensure sequential execution.
+	 * Submits job.
 	 * @param callable
 	 */
 	private void call(Callable<?> callable) {
 		Future<?> out = es.submit(callable);
-		try {
-			out.get();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	@Override

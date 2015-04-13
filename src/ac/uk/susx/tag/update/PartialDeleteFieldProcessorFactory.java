@@ -29,7 +29,7 @@ public class PartialDeleteFieldProcessorFactory extends UpdateRequestProcessorFa
 	
 	public class PartialDeleteFieldProcessor extends UpdateRequestProcessor {
 		
-		  private String solrURL = "http://localhost:8983/solr";
+		  private String solrURL = "http://localhost:10000/solr";
 		  private final HashSet<String> allowedFields = new HashSet<String>() {}; // Used as a security measure to prevent unwanted changes.
 		  private String unique_key = "id";
 		  private SolrQueryResponse rsp;
