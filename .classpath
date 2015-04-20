@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry including="**/*.java" kind="src" output="target/classes" path="src">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-io-2.2-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/opennlp-maxent-3.0.2-incubating.jar"/>
 	<classpathentry kind="lib" path="lib/opennlp-tools-1.5.2-incubating.jar"/>
@@ -25,5 +34,10 @@
 	<classpathentry kind="lib" path="lib/zookeeper-3.4.5.jar"/>
 	<classpathentry kind="lib" path="resources"/>
 	<classpathentry kind="lib" path="lib/GlobalStudiesPollingService-0.0.1-SNAPSHOT-jar-with-dependencies.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>
